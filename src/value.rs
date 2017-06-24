@@ -319,11 +319,23 @@ mod tests {
     #[test]
     fn it_works() {
         let mut g = GameRecord::default();
-        g.black_player = Some("black".to_string());
-        g.white_player = Some("white".to_string());
-        g.event = Some("event".to_string());
-        g.site = Some("site".to_string());
-        g.opening = Some("Yagura".to_string());
+        g.black_player = Some("NAKAHARA".to_string());
+        g.white_player = Some("YONENAGA".to_string());
+        g.event = Some("13th World Computer Shogi Championship".to_string());
+        g.site = Some("KAZUSA ARC".to_string());
+        g.start_time = Some(Time {
+            date: NaiveDate::from_ymd(2003, 5, 3),
+            time: Some(NaiveTime::from_hms(10, 30, 0)),
+        });
+        g.end_time = Some(Time {
+            date: NaiveDate::from_ymd(2003, 5, 3),
+            time: Some(NaiveTime::from_hms(11, 11, 5)),
+        });
+        g.time_limit = Some(TimeLimit {
+            main_time: Duration::from_secs(1500),
+            byoyomi: Duration::from_secs(0),
+        });
+        g.opening = Some("YAGURA".to_string());
         g.moves.push(MoveRecord {
             action: Action::Move(
                 Color::Black,
@@ -340,11 +352,14 @@ mod tests {
 
         let csa = "\
 V2.2
-N+black
-N-white
-$EVENT:event
-$SITE:site
-$OPENING:Yagura
+N+NAKAHARA
+N-YONENAGA
+$EVENT:13th World Computer Shogi Championship
+$SITE:KAZUSA ARC
+$START_TIME:2003/05/03 10:30:00
+$END_TIME:2003/05/03 11:11:05
+$TIME_LIMIT:00:25+00
+$OPENING:YAGURA
 PI
 +
 +8786FU
