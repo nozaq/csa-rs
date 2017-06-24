@@ -178,7 +178,7 @@ mod tests {
         assert_eq!(comment(b"'this is a comment"), IResult::Done(&b""[..], &b"this is a comment"[..]));
     }
 
-        #[test]
+    #[test]
     fn parse_piece_type() {
         assert_eq!(piece_type(b"FU"), IResult::Done(&b""[..], PieceType::Pawn));
         assert_eq!(piece_type(b"KY"), IResult::Done(&b""[..], PieceType::Lance));
@@ -266,25 +266,77 @@ P7+FU+FU+FU+FU+FU+FU+FU+FU+FU
 P8 * +KA *  *  *  *  * +HI * 
 P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
 
-    let initial_pos = [
-        [Some((Color::White, PieceType::Lance)), Some((Color::White, PieceType::Knight)), Some((Color::White, PieceType::Silver)),
-         Some((Color::White, PieceType::Gold)), Some((Color::White, PieceType::King)), Some((Color::White, PieceType::Gold)),
-         Some((Color::White, PieceType::Silver)), Some((Color::White, PieceType::Knight)), Some((Color::White, PieceType::Lance))],
-        [None, Some((Color::White, PieceType::Rook)), None, None, None, None, None, Some((Color::White, PieceType::Bishop)), None],
-        [Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)),
-         Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)),
-         Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn))],
-        [None, None, None, None, None, None, None, None, None],
-        [None, None, None, None, None, None, None, None, None],
-        [None, None, None, None, None, None, None, None, None],
-        [Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)),
-         Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)),
-         Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn))],
-        [None, Some((Color::Black, PieceType::Bishop)), None, None, None, None, None, Some((Color::Black, PieceType::Rook)), None],
-        [Some((Color::Black, PieceType::Lance)), Some((Color::Black, PieceType::Knight)), Some((Color::Black, PieceType::Silver)),
-         Some((Color::Black, PieceType::Gold)), Some((Color::Black, PieceType::King)), Some((Color::Black, PieceType::Gold)),
-         Some((Color::Black, PieceType::Silver)), Some((Color::Black, PieceType::Knight)), Some((Color::Black, PieceType::Lance))],
-    ];
+        let initial_pos = [
+            [
+                Some((Color::White, PieceType::Lance)),
+                Some((Color::White, PieceType::Knight)),
+                Some((Color::White, PieceType::Silver)),
+                Some((Color::White, PieceType::Gold)),
+                Some((Color::White, PieceType::King)),
+                Some((Color::White, PieceType::Gold)),
+                Some((Color::White, PieceType::Silver)),
+                Some((Color::White, PieceType::Knight)),
+                Some((Color::White, PieceType::Lance)),
+            ],
+            [
+                None,
+                Some((Color::White, PieceType::Rook)),
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some((Color::White, PieceType::Bishop)),
+                None,
+            ],
+            [
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+            ],
+            [None, None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None, None],
+            [
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+            ],
+            [
+                None,
+                Some((Color::Black, PieceType::Bishop)),
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some((Color::Black, PieceType::Rook)),
+                None,
+            ],
+            [
+                Some((Color::Black, PieceType::Lance)),
+                Some((Color::Black, PieceType::Knight)),
+                Some((Color::Black, PieceType::Silver)),
+                Some((Color::Black, PieceType::Gold)),
+                Some((Color::Black, PieceType::King)),
+                Some((Color::Black, PieceType::Gold)),
+                Some((Color::Black, PieceType::Silver)),
+                Some((Color::Black, PieceType::Knight)),
+                Some((Color::Black, PieceType::Lance)),
+            ],
+        ];
 
         assert_eq!(grid(grid_str), IResult::Done(&b""[..], initial_pos));
     }
@@ -383,25 +435,77 @@ T6
 ";
 
         let initial_pos = [
-            [Some((Color::White, PieceType::Lance)), Some((Color::White, PieceType::Knight)), Some((Color::White, PieceType::Silver)),
-            Some((Color::White, PieceType::Gold)), Some((Color::White, PieceType::King)), Some((Color::White, PieceType::Gold)),
-            Some((Color::White, PieceType::Silver)), Some((Color::White, PieceType::Knight)), Some((Color::White, PieceType::Lance))],
-            [None, Some((Color::White, PieceType::Rook)), None, None, None, None, None, Some((Color::White, PieceType::Bishop)), None],
-            [Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)),
-            Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)),
-            Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn)), Some((Color::White, PieceType::Pawn))],
+            [
+                Some((Color::White, PieceType::Lance)),
+                Some((Color::White, PieceType::Knight)),
+                Some((Color::White, PieceType::Silver)),
+                Some((Color::White, PieceType::Gold)),
+                Some((Color::White, PieceType::King)),
+                Some((Color::White, PieceType::Gold)),
+                Some((Color::White, PieceType::Silver)),
+                Some((Color::White, PieceType::Knight)),
+                Some((Color::White, PieceType::Lance)),
+            ],
+            [
+                None,
+                Some((Color::White, PieceType::Rook)),
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some((Color::White, PieceType::Bishop)),
+                None,
+            ],
+            [
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+                Some((Color::White, PieceType::Pawn)),
+            ],
             [None, None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None, None],
-            [Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)),
-            Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)),
-            Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn)), Some((Color::Black, PieceType::Pawn))],
-            [None, Some((Color::Black, PieceType::Bishop)), None, None, None, None, None, Some((Color::Black, PieceType::Rook)), None],
-            [Some((Color::Black, PieceType::Lance)), Some((Color::Black, PieceType::Knight)), Some((Color::Black, PieceType::Silver)),
-            Some((Color::Black, PieceType::Gold)), Some((Color::Black, PieceType::King)), Some((Color::Black, PieceType::Gold)),
-            Some((Color::Black, PieceType::Silver)), Some((Color::Black, PieceType::Knight)), Some((Color::Black, PieceType::Lance))],
+            [
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+                Some((Color::Black, PieceType::Pawn)),
+            ],
+            [
+                None,
+                Some((Color::Black, PieceType::Bishop)),
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some((Color::Black, PieceType::Rook)),
+                None,
+            ],
+            [
+                Some((Color::Black, PieceType::Lance)),
+                Some((Color::Black, PieceType::Knight)),
+                Some((Color::Black, PieceType::Silver)),
+                Some((Color::Black, PieceType::Gold)),
+                Some((Color::Black, PieceType::King)),
+                Some((Color::Black, PieceType::Gold)),
+                Some((Color::Black, PieceType::Silver)),
+                Some((Color::Black, PieceType::Knight)),
+                Some((Color::Black, PieceType::Lance)),
+            ],
         ];
-        
+
         assert_eq!(game_record(csa.as_bytes()), IResult::Done(&b""[..], GameRecord{
              black_player: Some("NAKAHARA".to_string()),
              white_player: Some("YONENAGA".to_string()),
