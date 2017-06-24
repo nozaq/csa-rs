@@ -10,13 +10,13 @@ use self::game::game_record;
 
 #[derive(Debug)]
 pub enum CsaError {
-    ParseError(ErrorKind)
+    ParseError(ErrorKind),
 }
 
 impl fmt::Display for CsaError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            CsaError::ParseError(ref err) => write!(f, "failed to parse: {}", err.description())
+            CsaError::ParseError(ref err) => write!(f, "failed to parse: {}", err.description()),
         }
     }
 }
@@ -24,13 +24,13 @@ impl fmt::Display for CsaError {
 impl Error for CsaError {
     fn description(&self) -> &str {
         match *self {
-            CsaError::ParseError(_) => "failed to parse the csa content"
+            CsaError::ParseError(_) => "failed to parse the csa content",
         }
     }
 
     fn cause(&self) -> Option<&Error> {
         match *self {
-            CsaError::ParseError(ref err) => Some(err)
+            CsaError::ParseError(ref err) => Some(err),
         }
     }
 }
@@ -72,7 +72,9 @@ mod tests {
 
             let mut file = File::open(&path).unwrap();
             let mut contents = String::new();
-            file.read_to_string(&mut contents).expect("failed to load a fixuture content");
+            file.read_to_string(&mut contents).expect(
+                "failed to load a fixuture content",
+            );
             let res = parse_csa(&contents);
 
             assert_eq!(res.is_ok(), true);
