@@ -2,7 +2,7 @@
 //!
 //! [CSA] format is a plaintext format for recording Shogi games.
 //! This library supports parsing CSA-formatted string as well as composing CSA-formatted string from structs.
-//! Detail about USI protocol is found at http://www.computer-shogi.org/protocol/record_v22.html.
+//! Detail about CSA format is found at http://www.computer-shogi.org/protocol/record_v22.html.
 //!
 //! # Examples
 //! Below is an example of parsing CSA-formatted string into structs.
