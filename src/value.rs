@@ -275,7 +275,7 @@ impl fmt::Display for Action {
             }
             Action::Toryo => write!(f, "%TORYO"),
             Action::Chudan => write!(f, "%CHUDAN"),
-            Action::Sennichite => write!(f, "SENNICHITE"),
+            Action::Sennichite => write!(f, "%SENNICHITE"),
             Action::TimeUp => write!(f, "%TIME_UP"),
             Action::IllegalMove => write!(f, "%ILLEGAL_MOVE"),
             Action::IllegalAction(ref color) => write!(f, "%{}ILLEGAL_ACTION", color),
@@ -317,7 +317,60 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
+    fn piece_type() {
+        assert_eq!(&PieceType::Pawn.to_string(), "FU");
+        assert_eq!(&PieceType::Lance.to_string(), "KY");
+        assert_eq!(&PieceType::Knight.to_string(), "KE");
+        assert_eq!(&PieceType::Silver.to_string(), "GI");
+        assert_eq!(&PieceType::Gold.to_string(), "KI");
+        assert_eq!(&PieceType::Bishop.to_string(), "KA");
+        assert_eq!(&PieceType::Rook.to_string(), "HI");
+        assert_eq!(&PieceType::King.to_string(), "OU");
+        assert_eq!(&PieceType::ProPawn.to_string(), "TO");
+        assert_eq!(&PieceType::ProLance.to_string(), "NY");
+        assert_eq!(&PieceType::ProKnight.to_string(), "NK");
+        assert_eq!(&PieceType::ProSilver.to_string(), "NG");
+        assert_eq!(&PieceType::Horse.to_string(), "UM");
+        assert_eq!(&PieceType::Dragon.to_string(), "RY");
+        assert_eq!(&PieceType::All.to_string(), "AL");
+    }
+
+    #[test]
+    fn action() {
+        assert_eq!(
+            &Action::Move(
+                Color::Black,
+                Square::new(7, 7),
+                Square::new(7, 6),
+                PieceType::Pawn,
+            ).to_string(),
+            "+7776FU"
+        );
+
+        assert_eq!(&Action::Toryo.to_string(), "%TORYO");
+        assert_eq!(&Action::Chudan.to_string(), "%CHUDAN");
+        assert_eq!(&Action::Sennichite.to_string(), "%SENNICHITE");
+        assert_eq!(&Action::TimeUp.to_string(), "%TIME_UP");
+        assert_eq!(&Action::IllegalMove.to_string(), "%ILLEGAL_MOVE");
+        assert_eq!(
+            &Action::IllegalAction(Color::Black).to_string(),
+            "%+ILLEGAL_ACTION"
+        );
+        assert_eq!(
+            &Action::IllegalAction(Color::White).to_string(),
+            "%-ILLEGAL_ACTION"
+        );
+        assert_eq!(&Action::Jishogi.to_string(), "%JISHOGI");
+        assert_eq!(&Action::Kachi.to_string(), "%KACHI");
+        assert_eq!(&Action::Hikiwake.to_string(), "%HIKIWAKE");
+        assert_eq!(&Action::Matta.to_string(), "%MATTA");
+        assert_eq!(&Action::Tsumi.to_string(), "%TSUMI");
+        assert_eq!(&Action::Fuzumi.to_string(), "%FUZUMI");
+        assert_eq!(&Action::Error.to_string(), "%ERROR");
+    }
+
+    #[test]
+    fn game_record() {
         let mut g = GameRecord::default();
         g.black_player = Some("NAKAHARA".to_string());
         g.white_player = Some("YONENAGA".to_string());
