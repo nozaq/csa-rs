@@ -1,0 +1,19 @@
+[package]
+name = "csa"
+version = "0.2.0"
+authors = ["nozaq"]
+description = "A Shogi game serialization/deserialization library in CSA format."
+keywords = ["shogi", "csa", "parser"]
+categories = ["game-engines"]
+repository = "https://github.com/nozaq/csa-rs"
+documentation = "http://nozaq.github.io/csa-rs"
+readme = "README.md"
+license = "MIT"
+
+[dependencies]
+chrono = "0.4"
+nom = "^3.0"
+
+[badges]
+travis-ci = { repository = "nozaq/csa-rs" }
+appveyor = { repository = "nozaq/csa-rs" }
