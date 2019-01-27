@@ -5,8 +5,8 @@ use nom::ErrorKind;
 use std::error::Error;
 use std::fmt;
 
-use value::GameRecord;
 use self::game::game_record;
+use crate::value::GameRecord;
 
 #[derive(Debug)]
 pub enum CsaError {
@@ -72,9 +72,8 @@ mod tests {
 
             let mut file = File::open(&path).unwrap();
             let mut contents = String::new();
-            file.read_to_string(&mut contents).expect(
-                "failed to load a fixuture content",
-            );
+            file.read_to_string(&mut contents)
+                .expect("failed to load a fixuture content");
             let res = parse_csa(&contents);
 
             assert_eq!(res.is_ok(), true);

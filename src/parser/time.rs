@@ -1,13 +1,24 @@
 use chrono::{NaiveDate, NaiveTime};
-use nom::digit;
+use nom::*;
 use std::str;
 use std::time::Duration;
 
-use value::{Time, TimeLimit};
+use crate::value::{Time, TimeLimit};
 
-named!(take_2_digits<i32>, map_res!(map_res!(take!(2), |s| str::from_utf8(s)), |s: &str| s.parse()));
-named!(take_4_digits<i32>, map_res!(map_res!(take!(4), |s| str::from_utf8(s)), |s: &str| s.parse()));
-named!(take_n_digits<i32>, map_res!(map_res!(digit, |s| str::from_utf8(s)), |s: &str| s.parse()));
+named!(
+    take_2_digits<i32>,
+    map_res!(map_res!(take!(2), |s| str::from_utf8(s)), |s: &str| s
+        .parse())
+);
+named!(
+    take_4_digits<i32>,
+    map_res!(map_res!(take!(4), |s| str::from_utf8(s)), |s: &str| s
+        .parse())
+);
+named!(
+    take_n_digits<i32>,
+    map_res!(map_res!(digit, |s| str::from_utf8(s)), |s: &str| s.parse())
+);
 
 named!(year<i32>, call!(take_4_digits));
 named!(month<i32>, verify!(take_2_digits, |d| d > 0 && d < 13));
@@ -16,23 +27,29 @@ named!(hour<i32>, verify!(take_2_digits, |d| d >= 0 && d < 24));
 named!(minutes<i32>, verify!(take_2_digits, |d| d >= 0 && d < 60));
 named!(seconds<i32>, verify!(take_2_digits, |d| d >= 0 && d < 60));
 
-named!(date<NaiveDate>, do_parse!(
-    year: year >>
-    tag!("/") >>
-    month: month >>
-    tag!("/") >>
-    day: day >>
-    ( NaiveDate::from_ymd(year, month as u32, day as u32) )
-));
+named!(
+    date<NaiveDate>,
+    do_parse!(
+        year: year
+            >> tag!("/")
+            >> month: month
+            >> tag!("/")
+            >> day: day
+            >> (NaiveDate::from_ymd(year, month as u32, day as u32))
+    )
+);
 
-named!(time<NaiveTime>, do_parse!(
-    hour: hour >>
-    tag!(":") >>
-    minutes: minutes >>
-    tag!(":") >>
-    seconds: seconds >>
-    ( NaiveTime::from_hms(hour as u32, minutes as u32, seconds as u32) )
-));
+named!(
+    time<NaiveTime>,
+    do_parse!(
+        hour: hour
+            >> tag!(":")
+            >> minutes: minutes
+            >> tag!(":")
+            >> seconds: seconds
+            >> (NaiveTime::from_hms(hour as u32, minutes as u32, seconds as u32))
+    )
+);
 
 named!(pub datetime<Time>, do_parse!(
     date: date >>
@@ -108,39 +125,75 @@ mod tests {
 
     #[test]
     fn parse_date() {
-        assert_eq!(date(b"2002/01/01"), IResult::Done(&b""[..], NaiveDate::from_ymd(2002, 1, 1)));
+        assert_eq!(
+            date(b"2002/01/01"),
+            IResult::Done(&b""[..], NaiveDate::from_ymd(2002, 1, 1))
+        );
     }
 
     #[test]
     fn parse_time() {
-        assert_eq!(time(b"19:00:00"), IResult::Done(&b""[..], NaiveTime::from_hms(19, 0, 0)));
+        assert_eq!(
+            time(b"19:00:00"),
+            IResult::Done(&b""[..], NaiveTime::from_hms(19, 0, 0))
+        );
     }
 
     #[test]
     fn parse_datetime() {
-        assert_eq!(datetime(b"2002/01/01"), IResult::Done(&b""[..], Time {
-            date: NaiveDate::from_ymd(2002, 1, 1),
-            time: None
-        }));
-        assert_eq!(datetime(b"2002/01/01 19:00:00"), IResult::Done(&b""[..], Time{
-            date: NaiveDate::from_ymd(2002, 1, 1),
-            time: Some(NaiveTime::from_hms(19, 0, 0))
-        }));
+        assert_eq!(
+            datetime(b"2002/01/01"),
+            IResult::Done(
+                &b""[..],
+                Time {
+                    date: NaiveDate::from_ymd(2002, 1, 1),
+                    time: None
+                }
+            )
+        );
+        assert_eq!(
+            datetime(b"2002/01/01 19:00:00"),
+            IResult::Done(
+                &b""[..],
+                Time {
+                    date: NaiveDate::from_ymd(2002, 1, 1),
+                    time: Some(NaiveTime::from_hms(19, 0, 0))
+                }
+            )
+        );
     }
 
-   #[test]
+    #[test]
     fn parse_timelimit() {
-        assert_eq!(timelimit(b"00:25+00"), IResult::Done(&b""[..], TimeLimit {
-            main_time: Duration::from_secs(25 * 60),
-            byoyomi: Duration::from_secs(0)
-        }));
-        assert_eq!(timelimit(b"00:30+30"), IResult::Done(&b""[..], TimeLimit {
-            main_time: Duration::from_secs(30 * 60),
-            byoyomi: Duration::from_secs(30)
-        }));
-        assert_eq!(timelimit(b"00:00+30"), IResult::Done(&b""[..], TimeLimit {
-            main_time: Duration::from_secs(0),
-            byoyomi: Duration::from_secs(30)
-        }) );
+        assert_eq!(
+            timelimit(b"00:25+00"),
+            IResult::Done(
+                &b""[..],
+                TimeLimit {
+                    main_time: Duration::from_secs(25 * 60),
+                    byoyomi: Duration::from_secs(0)
+                }
+            )
+        );
+        assert_eq!(
+            timelimit(b"00:30+30"),
+            IResult::Done(
+                &b""[..],
+                TimeLimit {
+                    main_time: Duration::from_secs(30 * 60),
+                    byoyomi: Duration::from_secs(30)
+                }
+            )
+        );
+        assert_eq!(
+            timelimit(b"00:00+30"),
+            IResult::Done(
+                &b""[..],
+                TimeLimit {
+                    main_time: Duration::from_secs(0),
+                    byoyomi: Duration::from_secs(30)
+                }
+            )
+        );
     }
- }
+}
