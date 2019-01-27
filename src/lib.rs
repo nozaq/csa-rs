@@ -73,12 +73,8 @@
 //!
 //! [CSA]: http://www.computer-shogi.org/protocol/record_v22.html
 
-extern crate chrono;
-#[macro_use]
-extern crate nom;
-
-pub mod value;
 pub mod parser;
+pub mod value;
 
 pub use parser::*;
 pub use value::*;

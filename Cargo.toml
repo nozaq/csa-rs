@@ -9,6 +9,7 @@ repository = "https://github.com/nozaq/csa-rs"
 documentation = "http://nozaq.github.io/csa-rs"
 readme = "README.md"
 license = "MIT"
+edition = "2018"
 
 [dependencies]
 chrono = "0.4"
