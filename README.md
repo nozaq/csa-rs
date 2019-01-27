@@ -14,7 +14,7 @@ A Shogi game serialization/deserialization library in CSA format.
 
 ```
 [dependencies]
-csa = "0.2"
+csa = "0.3"
 ```
 
 ## License
