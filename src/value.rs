@@ -1,6 +1,6 @@
+use chrono::{NaiveDate, NaiveTime};
 use std::fmt;
 use std::time::Duration;
-use chrono::{NaiveDate, NaiveTime};
 
 #[derive(Default, Debug, PartialEq, Eq)]
 pub struct GameRecord {
@@ -343,7 +343,8 @@ mod tests {
                 Square::new(7, 7),
                 Square::new(7, 6),
                 PieceType::Pawn,
-            ).to_string(),
+            )
+            .to_string(),
             "+7776FU"
         );
 
