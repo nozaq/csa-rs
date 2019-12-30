@@ -1,7 +1,6 @@
 # csa-rs
 
-[![Build Status](https://travis-ci.org/nozaq/csa-rs.svg?branch=master)](https://travis-ci.org/nozaq/csa-rs)
-[![Build status](https://ci.appveyor.com/api/projects/status/um3vnwl9q4btkw5d?svg=true)](https://ci.appveyor.com/project/nozaq/csa-rs)
+[![Github Actions](https://github.com/nozaq/csa-rs/workflows/build/badge.svg)](https://github.com/nozaq/csa-rs/actions?workflow=build)
 [![Coverage Status](https://coveralls.io/repos/github/nozaq/csa-rs/badge.svg)](https://coveralls.io/github/nozaq/csa-rs)
 [![crates.io](https://img.shields.io/crates/v/csa.svg)](https://crates.io/crates/csa)
 [![docs.rs](https://docs.rs/csa/badge.svg)](https://docs.rs/csa)
