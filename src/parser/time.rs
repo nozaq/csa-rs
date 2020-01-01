@@ -1,73 +1,95 @@
 use chrono::{NaiveDate, NaiveTime};
+use nom::bytes::complete::{tag, take};
+use nom::character::complete::digit1;
+use nom::combinator::{map_res, opt, verify};
+use nom::sequence::preceded;
 use nom::*;
 use std::str;
 use std::time::Duration;
 
 use crate::value::{Time, TimeLimit};
 
-named!(
-    take_2_digits<i32>,
-    map_res!(map_res!(take!(2), |s| str::from_utf8(s)), |s: &str| s
-        .parse())
-);
-named!(
-    take_4_digits<i32>,
-    map_res!(map_res!(take!(4), |s| str::from_utf8(s)), |s: &str| s
-        .parse())
-);
-named!(
-    take_n_digits<i32>,
-    map_res!(map_res!(digit, |s| str::from_utf8(s)), |s: &str| s.parse())
-);
+fn take_2_digits(input: &[u8]) -> IResult<&[u8], i32> {
+    map_res(map_res(take(2usize), str::from_utf8), |s: &str| s.parse())(input)
+}
 
-named!(year<i32>, call!(take_4_digits));
-named!(month<i32>, verify!(take_2_digits, |d| d > 0 && d < 13));
-named!(day<i32>, verify!(take_2_digits, |d| d > 0 && d < 32));
-named!(hour<i32>, verify!(take_2_digits, |d| d >= 0 && d < 24));
-named!(minutes<i32>, verify!(take_2_digits, |d| d >= 0 && d < 60));
-named!(seconds<i32>, verify!(take_2_digits, |d| d >= 0 && d < 60));
+fn take_4_digits(input: &[u8]) -> IResult<&[u8], i32> {
+    map_res(map_res(take(4usize), str::from_utf8), |s: &str| s.parse())(input)
+}
 
-named!(
-    date<NaiveDate>,
-    do_parse!(
-        year: year
-            >> tag!("/")
-            >> month: month
-            >> tag!("/")
-            >> day: day
-            >> (NaiveDate::from_ymd(year, month as u32, day as u32))
-    )
-);
+fn take_n_digits(input: &[u8]) -> IResult<&[u8], i32> {
+    map_res(map_res(digit1, str::from_utf8), |s: &str| s.parse())(input)
+}
 
-named!(
-    time<NaiveTime>,
-    do_parse!(
-        hour: hour
-            >> tag!(":")
-            >> minutes: minutes
-            >> tag!(":")
-            >> seconds: seconds
-            >> (NaiveTime::from_hms(hour as u32, minutes as u32, seconds as u32))
-    )
-);
+fn year(input: &[u8]) -> IResult<&[u8], i32> {
+    take_4_digits(input)
+}
 
-named!(pub datetime<Time>, do_parse!(
-    date: date >>
-    time: opt!(complete!(preceded!(tag!(" "), time))) >>
-    ( Time{date, time} )
-));
+fn month(input: &[u8]) -> IResult<&[u8], i32> {
+    verify(take_2_digits, |&d| d > 0 && d < 13)(input)
+}
 
-named!(pub timelimit<TimeLimit>, do_parse!(
-    hour: take_n_digits >>
-    tag!(":") >>
-    minutes: minutes >>
-    tag!("+") >>
-    byoyomi: take_n_digits >>
-    ( TimeLimit {
-        main_time: Duration::from_secs(hour as u64 * 60 * 60 + minutes as u64 * 60),
-        byoyomi: Duration::from_secs(byoyomi as u64)
-    } )
-));
+fn day(input: &[u8]) -> IResult<&[u8], i32> {
+    verify(take_2_digits, |&d| d > 0 && d < 32)(input)
+}
+
+fn hour(input: &[u8]) -> IResult<&[u8], i32> {
+    verify(take_2_digits, |&d| d >= 0 && d < 24)(input)
+}
+
+fn minutes(input: &[u8]) -> IResult<&[u8], i32> {
+    verify(take_2_digits, |&d| d >= 0 && d < 60)(input)
+}
+
+fn seconds(input: &[u8]) -> IResult<&[u8], i32> {
+    verify(take_2_digits, |&d| d >= 0 && d < 60)(input)
+}
+
+fn date(input: &[u8]) -> IResult<&[u8], NaiveDate> {
+    let (input, year) = year(input)?;
+    let (input, _) = tag("/")(input)?;
+    let (input, month) = month(input)?;
+    let (input, _) = tag("/")(input)?;
+    let (input, day) = day(input)?;
+
+    Ok((input, NaiveDate::from_ymd(year, month as u32, day as u32)))
+}
+
+fn time(input: &[u8]) -> IResult<&[u8], NaiveTime> {
+    let (input, hour) = hour(input)?;
+    let (input, _) = tag(":")(input)?;
+    let (input, minutes) = minutes(input)?;
+    let (input, _) = tag(":")(input)?;
+    let (input, seconds) = seconds(input)?;
+
+    Ok((
+        input,
+        NaiveTime::from_hms(hour as u32, minutes as u32, seconds as u32),
+    ))
+}
+
+pub fn datetime(input: &[u8]) -> IResult<&[u8], Time> {
+    let (input, date) = date(input)?;
+    let (input, time) = opt(preceded(tag(" "), time))(input)?;
+
+    Ok((input, Time { date, time }))
+}
+
+pub fn timelimit(input: &[u8]) -> IResult<&[u8], TimeLimit> {
+    let (input, hour) = take_n_digits(input)?;
+    let (input, _) = tag(":")(input)?;
+    let (input, minutes) = minutes(input)?;
+    let (input, _) = tag("+")(input)?;
+    let (input, byoyomi) = take_n_digits(input)?;
+
+    Ok((
+        input,
+        TimeLimit {
+            main_time: Duration::from_secs(hour as u64 * 60 * 60 + minutes as u64 * 60),
+            byoyomi: Duration::from_secs(byoyomi as u64),
+        },
+    ))
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

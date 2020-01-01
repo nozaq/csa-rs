@@ -20,8 +20,7 @@ impl fmt::Display for CsaError {
     }
 }
 
-impl Error for CsaError {
-}
+impl Error for CsaError {}
 
 ////////////////////////////////////////////////////////////////////////////////
 

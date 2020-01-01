@@ -1,3 +1,9 @@
+use nom::branch::alt;
+use nom::bytes::complete::{is_a, is_not, tag, take};
+use nom::character::complete::{anychar, digit1, one_of};
+use nom::combinator::{map, map_res, opt, value};
+use nom::multi::{count, many0, separated_list};
+use nom::sequence::{delimited, preceded, separated_pair, terminated, tuple};
 use nom::*;
 use std::str;
 use std::time::Duration;
@@ -5,229 +11,313 @@ use std::time::Duration;
 use super::time::{datetime, timelimit};
 use crate::value::*;
 
-named!(line_sep, is_a!("\r\n,"));
-named!(not_line_sep, is_not!("\r\n,"));
-named!(comment, preceded!(tag!("'"), not_line_sep));
-named!(comment_line, terminated!(comment, line_sep));
-named!(
-    color<Color>,
-    map!(one_of!("+-"), |s| match s {
+fn line_sep(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    is_a("\r\n,")(input)
+}
+
+fn not_line_sep(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    is_not("\r\n,")(input)
+}
+
+fn comment(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    preceded(tag("'"), not_line_sep)(input)
+}
+
+fn comment_line(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    terminated(comment, line_sep)(input)
+}
+
+fn color(input: &[u8]) -> IResult<&[u8], Color> {
+    map(one_of("+-"), |s| match s {
         '+' => Color::Black,
         _ => Color::White,
-    })
-);
-named!(
-    decimal<Duration>,
-    map_res!(digit, |s| str::from_utf8(s)
-        .map(|s| s.parse::<u64>().unwrap())
-        .map(Duration::from_secs))
-);
+    })(input)
+}
 
-named!(fu<PieceType>, value!(PieceType::Pawn, tag!("FU")));
-named!(ky<PieceType>, value!(PieceType::Lance, tag!("KY")));
-named!(ke<PieceType>, value!(PieceType::Knight, tag!("KE")));
-named!(gi<PieceType>, value!(PieceType::Silver, tag!("GI")));
-named!(ki<PieceType>, value!(PieceType::Gold, tag!("KI")));
-named!(ka<PieceType>, value!(PieceType::Bishop, tag!("KA")));
-named!(hi<PieceType>, value!(PieceType::Rook, tag!("HI")));
-named!(ou<PieceType>, value!(PieceType::King, tag!("OU")));
-named!(to<PieceType>, value!(PieceType::ProPawn, tag!("TO")));
-named!(ny<PieceType>, value!(PieceType::ProLance, tag!("NY")));
-named!(nk<PieceType>, value!(PieceType::ProKnight, tag!("NK")));
-named!(ng<PieceType>, value!(PieceType::ProSilver, tag!("NG")));
-named!(um<PieceType>, value!(PieceType::Horse, tag!("UM")));
-named!(ry<PieceType>, value!(PieceType::Dragon, tag!("RY")));
-named!(al<PieceType>, value!(PieceType::All, tag!("AL")));
-named!(
-    piece_type<PieceType>,
-    alt!(fu | ky | ke | gi | ki | ka | hi | ou | to | ny | nk | ng | um | ry | al)
-);
+fn decimal(input: &[u8]) -> IResult<&[u8], Duration> {
+    map_res(digit1, |s| {
+        str::from_utf8(s)
+            .map(|s| s.parse::<u64>().unwrap())
+            .map(Duration::from_secs)
+    })(input)
+}
 
-named!(
-    one_digit<u8>,
-    map!(one_of!("0123456789"), |c: char| c.to_digit(10).unwrap()
-        as u8)
-);
-named!(
-    square<Square>,
-    map!(tuple!(one_digit, one_digit), |(file, rank)| Square::new(
-        file, rank
-    ))
-);
+fn fu(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Pawn, tag("FU"))(input)
+}
 
-named!(
-    version,
-    preceded!(
-        tag!("V"),
-        alt_complete!(tag!("2.1") | tag!("2.2") | tag!("2"))
-    )
-);
-named!(black_player, preceded!(tag!("N+"), not_line_sep));
-named!(white_player, preceded!(tag!("N-"), not_line_sep));
-named!(
-    game_text_attr<GameAttribute>,
-    map!(map_res!(not_line_sep, |s| str::from_utf8(s)), |s: &str| {
+fn ky(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Lance, tag("KY"))(input)
+}
+
+fn ke(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Knight, tag("KE"))(input)
+}
+
+fn gi(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Silver, tag("GI"))(input)
+}
+
+fn ki(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Gold, tag("KI"))(input)
+}
+
+fn ka(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Bishop, tag("KA"))(input)
+}
+
+fn hi(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Rook, tag("HI"))(input)
+}
+
+fn ou(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::King, tag("OU"))(input)
+}
+
+fn to(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::ProPawn, tag("TO"))(input)
+}
+
+fn ny(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::ProLance, tag("NY"))(input)
+}
+
+fn nk(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::ProKnight, tag("NK"))(input)
+}
+
+fn ng(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::ProSilver, tag("NG"))(input)
+}
+
+fn um(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Horse, tag("UM"))(input)
+}
+
+fn ry(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::Dragon, tag("RY"))(input)
+}
+
+fn al(input: &[u8]) -> IResult<&[u8], PieceType> {
+    value(PieceType::All, tag("AL"))(input)
+}
+
+fn piece_type(input: &[u8]) -> IResult<&[u8], PieceType> {
+    alt((fu, ky, ke, gi, ki, ka, hi, ou, to, ny, nk, ng, um, ry, al))(input)
+}
+
+fn one_digit(input: &[u8]) -> IResult<&[u8], u8> {
+    map(one_of("0123456789"), |c: char| {
+        c.to_digit(10).unwrap() as u8
+    })(input)
+}
+
+fn square(input: &[u8]) -> IResult<&[u8], Square> {
+    map(tuple((one_digit, one_digit)), |(file, rank)| {
+        Square::new(file, rank)
+    })(input)
+}
+
+fn version(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    preceded(tag("V"), alt((tag("2.1"), tag("2.2"), tag("2"))))(input)
+}
+
+fn black_player(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    preceded(tag("N+"), not_line_sep)(input)
+}
+
+fn white_player(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    preceded(tag("N-"), not_line_sep)(input)
+}
+
+fn game_text_attr(input: &[u8]) -> IResult<&[u8], GameAttribute> {
+    map(map_res(not_line_sep, |s| str::from_utf8(s)), |s: &str| {
         GameAttribute::Str(s.to_string())
-    })
-);
-named!(
-    game_time_attr<GameAttribute>,
-    map!(datetime, |t| GameAttribute::Time(t))
-);
-named!(
-    game_timelimit_attr<GameAttribute>,
-    map!(timelimit, |t| GameAttribute::TimeLimit(t))
-);
+    })(input)
+}
 
-named!(
-    game_attr<(String, GameAttribute)>,
-    preceded!(
-        tag!("$"),
-        separated_pair!(
-            map_res!(is_not!(":"), |s: &[u8]| String::from_utf8(s.to_vec())),
-            tag!(":"),
-            alt_complete!(game_time_attr | game_timelimit_attr | game_text_attr)
-        )
-    )
-);
+fn game_time_attr(input: &[u8]) -> IResult<&[u8], GameAttribute> {
+    map(datetime, GameAttribute::Time)(input)
+}
 
-named!(
-    handicap<Vec<(Square, PieceType)>>,
-    preceded!(tag!("PI"), many0!(tuple!(square, piece_type)))
-);
+fn game_timelimit_attr(input: &[u8]) -> IResult<&[u8], GameAttribute> {
+    map(timelimit, GameAttribute::TimeLimit)(input)
+}
 
-named!(
-    grid_piece<Option<(Color, PieceType)>>,
-    switch!(anychar,
-        '+' => map!(piece_type, |pt| Some((Color::Black, pt))) |
-        '-' => map!(piece_type, |pt| Some((Color::White, pt))) |
-        _ => value!(None, take!(2))
-    )
-);
-named!(
-    grid_row<[Option<(Color, PieceType)>; 9]>,
-    count_fixed!(Option<(Color, PieceType)>, grid_piece, 9)
-);
-named!(
-    grid<[[Option<(Color, PieceType)>; 9]; 9]>,
-    do_parse!(
-        r1: delimited!(tag!("P1"), grid_row, line_sep)
-            >> r2: delimited!(tag!("P2"), grid_row, line_sep)
-            >> r3: delimited!(tag!("P3"), grid_row, line_sep)
-            >> r4: delimited!(tag!("P4"), grid_row, line_sep)
-            >> r5: delimited!(tag!("P5"), grid_row, line_sep)
-            >> r6: delimited!(tag!("P6"), grid_row, line_sep)
-            >> r7: delimited!(tag!("P7"), grid_row, line_sep)
-            >> r8: delimited!(tag!("P8"), grid_row, line_sep)
-            >> r9: preceded!(tag!("P9"), grid_row)
-            >> ([r1, r2, r3, r4, r5, r6, r7, r8, r9])
-    )
-);
-
-named!(
-    piece_placement<Vec<(Color, Square, PieceType)>>,
-    do_parse!(
-        tag!("P")
-            >> c: color
-            >> pcs: many0!(tuple!(square, piece_type))
-            >> (pcs.iter().map(|&(sq, pt)| (c, sq, pt)).collect::<Vec<_>>())
-    )
-);
-
-named!(
-    normal_move<Action>,
-    do_parse!(
-        c: color >> from: square >> to: square >> pt: piece_type >> (Action::Move(c, from, to, pt))
-    )
-);
-
-named!(
-    special_move<Action>,
-    preceded!(
-        tag!("%"),
-        alt!(
-            value!(Action::Toryo, tag!("TORYO"))
-                | value!(Action::Matta, tag!("MATTA"))
-                | value!(Action::Tsumi, tag!("TSUMI"))
-                | value!(Action::Error, tag!("ERROR"))
-                | value!(Action::Kachi, tag!("KACHI"))
-                | value!(Action::Chudan, tag!("CHUDAN"))
-                | value!(Action::Fuzumi, tag!("FUZUMI"))
-                | value!(Action::Jishogi, tag!("JISHOGI"))
-                | value!(Action::Hikiwake, tag!("HIKIWAKE"))
-                | value!(Action::Sennichite, tag!("SENNICHITE"))
-        )
-    )
-);
-
-named!(
-    move_record<MoveRecord>,
-    do_parse!(
-        action: alt_complete!(normal_move | special_move)
-            >> time: opt!(complete!(preceded!(
-                line_sep,
-                preceded!(tag!("T"), decimal)
-            )))
-            >> (MoveRecord { action, time })
-    )
-);
-
-named!(pub game_record<GameRecord>, do_parse!(
-    many0!(comment_line) >>
-    opt!(terminated!(version, line_sep)) >>
-    many0!(comment_line) >>
-    black_player: opt!(map_res!(terminated!(black_player, line_sep), |b| str::from_utf8(b))) >>
-    many0!(comment_line) >>
-    white_player: opt!(map_res!(terminated!(white_player, line_sep), |b| str::from_utf8(b))) >>
-    many0!(comment_line) >>
-    attrs: map!(
-        opt!(terminated!(separated_list!(line_sep, preceded!(many0!(comment_line), game_attr)), line_sep)), 
-        |v: Option<Vec<(String, GameAttribute)>>| v.unwrap_or_default()
-    ) >>
-    many0!(comment_line) >>
-    drop_pieces: opt!(terminated!(handicap, line_sep)) >>
-    many0!(comment_line) >>
-    bulk: opt!(terminated!(grid, line_sep)) >>
-    many0!(comment_line) >>
-    add_pieces: many0!(terminated!(piece_placement, line_sep)) >>
-    many0!(comment_line) >>
-    side_to_move: terminated!(color, line_sep) >>
-    many0!(comment_line) >>
-    moves: many0!(terminated!(move_record, line_sep)) >>
-    many0!(comment_line) >>
-    (GameRecord{
-        black_player: black_player.map(|s| s.to_string()),
-        white_player: white_player.map(|s| s.to_string()),
-        event: attrs.iter().find(|pair| pair.0 == "EVENT").map(|pair| pair.1.to_string()),
-        site: attrs.iter().find(|pair| pair.0 == "SITE").map(|pair| pair.1.to_string()),
-        start_time: attrs.iter().find(|pair| pair.0 == "START_TIME").and_then(|pair| 
-            match pair.1 {
-                GameAttribute::Time(ref t) => Some(t.clone()),
-                _ => None
-            }
+fn game_attr(input: &[u8]) -> IResult<&[u8], (String, GameAttribute)> {
+    preceded(
+        tag("$"),
+        separated_pair(
+            map_res(is_not(":"), |s: &[u8]| String::from_utf8(s.to_vec())),
+            tag(":"),
+            alt((game_time_attr, game_timelimit_attr, game_text_attr)),
         ),
-        end_time: attrs.iter().find(|pair| pair.0 == "END_TIME").and_then(|pair| 
-            match pair.1 {
-                GameAttribute::Time(ref t) => Some(t.clone()),
-                _ => None
-            }
-        ),
-        time_limit: attrs.iter().find(|pair| pair.0 == "TIME_LIMIT").and_then(|pair| 
-            match pair.1 {
-                GameAttribute::TimeLimit(ref t) => Some(t.clone()),
-                _ => None
-            }
-        ),
-        opening: attrs.iter().find(|pair| pair.0 == "OPENING").map(|pair| pair.1.to_string()),
-        start_pos: Position{
-            drop_pieces: drop_pieces.unwrap_or_else(|| vec![]),
-            bulk,
-            add_pieces: add_pieces.into_iter().flatten().collect(),
-            side_to_move,
+    )(input)
+}
+
+fn handicap(input: &[u8]) -> IResult<&[u8], Vec<(Square, PieceType)>> {
+    preceded(tag("PI"), many0(tuple((square, piece_type))))(input)
+}
+
+fn grid_piece(input: &[u8]) -> IResult<&[u8], Option<(Color, PieceType)>> {
+    let (input, result) = anychar(input)?;
+
+    match result {
+        '+' => map(piece_type, |pt| Some((Color::Black, pt)))(input),
+        '-' => map(piece_type, |pt| Some((Color::White, pt)))(input),
+        _ => value(None, take(2usize))(input),
+    }
+}
+
+type GridRow = [Option<(Color, PieceType)>; 9];
+type Grid = [GridRow; 9];
+
+fn grid_row(input: &[u8]) -> IResult<&[u8], GridRow> {
+    let (input, vec) = count(grid_piece, 9)(input)?;
+
+    // TODO: Convert into an array instead of copying.
+    let mut array = [None; 9];
+    array.clone_from_slice(&vec);
+
+    Ok((input, array))
+}
+
+fn grid(input: &[u8]) -> IResult<&[u8], Grid> {
+    let (input, r1) = delimited(tag("P1"), grid_row, line_sep)(input)?;
+    let (input, r2) = delimited(tag("P2"), grid_row, line_sep)(input)?;
+    let (input, r3) = delimited(tag("P3"), grid_row, line_sep)(input)?;
+    let (input, r4) = delimited(tag("P4"), grid_row, line_sep)(input)?;
+    let (input, r5) = delimited(tag("P5"), grid_row, line_sep)(input)?;
+    let (input, r6) = delimited(tag("P6"), grid_row, line_sep)(input)?;
+    let (input, r7) = delimited(tag("P7"), grid_row, line_sep)(input)?;
+    let (input, r8) = delimited(tag("P8"), grid_row, line_sep)(input)?;
+    let (input, r9) = preceded(tag("P9"), grid_row)(input)?;
+
+    Ok((input, [r1, r2, r3, r4, r5, r6, r7, r8, r9]))
+}
+
+fn piece_placement(input: &[u8]) -> IResult<&[u8], Vec<(Color, Square, PieceType)>> {
+    let (input, _) = tag("P")(input)?;
+    let (input, c) = color(input)?;
+    let (input, pcs) = many0(tuple((square, piece_type)))(input)?;
+
+    Ok((
+        input,
+        pcs.iter().map(|&(sq, pt)| (c, sq, pt)).collect::<Vec<_>>(),
+    ))
+}
+
+fn normal_move(input: &[u8]) -> IResult<&[u8], Action> {
+    let (input, c) = color(input)?;
+    let (input, from) = square(input)?;
+    let (input, to) = square(input)?;
+    let (input, pt) = piece_type(input)?;
+
+    Ok((input, Action::Move(c, from, to, pt)))
+}
+
+fn special_move(input: &[u8]) -> IResult<&[u8], Action> {
+    preceded(
+        tag("%"),
+        alt((
+            value(Action::Toryo, tag("TORYO")),
+            value(Action::Matta, tag("MATTA")),
+            value(Action::Tsumi, tag("TSUMI")),
+            value(Action::Error, tag("ERROR")),
+            value(Action::Kachi, tag("KACHI")),
+            value(Action::Chudan, tag("CHUDAN")),
+            value(Action::Fuzumi, tag("FUZUMI")),
+            value(Action::Jishogi, tag("JISHOGI")),
+            value(Action::Hikiwake, tag("HIKIWAKE")),
+            value(Action::Sennichite, tag("SENNICHITE")),
+        )),
+    )(input)
+}
+
+fn move_record(input: &[u8]) -> IResult<&[u8], MoveRecord> {
+    let (input, action) = alt((normal_move, special_move))(input)?;
+    let (input, time) = opt(preceded(line_sep, preceded(tag("T"), decimal)))(input)?;
+
+    Ok((input, MoveRecord { action, time }))
+}
+
+pub fn game_record(input: &[u8]) -> IResult<&[u8], GameRecord> {
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, _) = opt(terminated(version, line_sep))(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, black_player) = opt(map_res(terminated(black_player, line_sep), |b| {
+        str::from_utf8(b)
+    }))(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, white_player) = opt(map_res(terminated(white_player, line_sep), |b| {
+        str::from_utf8(b)
+    }))(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, attrs) = map(
+        opt(terminated(
+            separated_list(line_sep, preceded(many0(comment_line), game_attr)),
+            line_sep,
+        )),
+        |v: Option<Vec<(String, GameAttribute)>>| v.unwrap_or_default(),
+    )(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, drop_pieces) = opt(terminated(handicap, line_sep))(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, bulk) = opt(terminated(grid, line_sep))(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, add_pieces) = many0(terminated(piece_placement, line_sep))(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, side_to_move) = terminated(color, line_sep)(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+    let (input, moves) = many0(terminated(move_record, line_sep))(input)?;
+    let (input, _) = many0(comment_line)(input)?;
+
+    Ok((
+        input,
+        GameRecord {
+            black_player: black_player.map(|s| s.to_string()),
+            white_player: white_player.map(|s| s.to_string()),
+            event: attrs
+                .iter()
+                .find(|pair| pair.0 == "EVENT")
+                .map(|pair| pair.1.to_string()),
+            site: attrs
+                .iter()
+                .find(|pair| pair.0 == "SITE")
+                .map(|pair| pair.1.to_string()),
+            start_time: attrs.iter().find(|pair| pair.0 == "START_TIME").and_then(
+                |pair| match pair.1 {
+                    GameAttribute::Time(ref t) => Some(t.clone()),
+                    _ => None,
+                },
+            ),
+            end_time: attrs
+                .iter()
+                .find(|pair| pair.0 == "END_TIME")
+                .and_then(|pair| match pair.1 {
+                    GameAttribute::Time(ref t) => Some(t.clone()),
+                    _ => None,
+                }),
+            time_limit: attrs.iter().find(|pair| pair.0 == "TIME_LIMIT").and_then(
+                |pair| match pair.1 {
+                    GameAttribute::TimeLimit(ref t) => Some(t.clone()),
+                    _ => None,
+                },
+            ),
+            opening: attrs
+                .iter()
+                .find(|pair| pair.0 == "OPENING")
+                .map(|pair| pair.1.to_string()),
+            start_pos: Position {
+                drop_pieces: drop_pieces.unwrap_or_else(|| vec![]),
+                bulk,
+                add_pieces: add_pieces.into_iter().flatten().collect(),
+                side_to_move,
+            },
+            moves,
         },
-        moves,
-    })
-));
+    ))
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -249,19 +339,10 @@ mod tests {
     fn parse_piece_type() {
         assert_eq!(piece_type(b"FU"), Result::Ok((&b""[..], PieceType::Pawn)));
         assert_eq!(piece_type(b"KY"), Result::Ok((&b""[..], PieceType::Lance)));
-        assert_eq!(
-            piece_type(b"KE"),
-            Result::Ok((&b""[..], PieceType::Knight))
-        );
-        assert_eq!(
-            piece_type(b"GI"),
-            Result::Ok((&b""[..], PieceType::Silver))
-        );
+        assert_eq!(piece_type(b"KE"), Result::Ok((&b""[..], PieceType::Knight)));
+        assert_eq!(piece_type(b"GI"), Result::Ok((&b""[..], PieceType::Silver)));
         assert_eq!(piece_type(b"KI"), Result::Ok((&b""[..], PieceType::Gold)));
-        assert_eq!(
-            piece_type(b"KA"),
-            Result::Ok((&b""[..], PieceType::Bishop))
-        );
+        assert_eq!(piece_type(b"KA"), Result::Ok((&b""[..], PieceType::Bishop)));
         assert_eq!(piece_type(b"HI"), Result::Ok((&b""[..], PieceType::Rook)));
         assert_eq!(piece_type(b"OU"), Result::Ok((&b""[..], PieceType::King)));
         assert_eq!(
@@ -281,10 +362,7 @@ mod tests {
             Result::Ok((&b""[..], PieceType::ProSilver))
         );
         assert_eq!(piece_type(b"UM"), Result::Ok((&b""[..], PieceType::Horse)));
-        assert_eq!(
-            piece_type(b"RY"),
-            Result::Ok((&b""[..], PieceType::Dragon))
-        );
+        assert_eq!(piece_type(b"RY"), Result::Ok((&b""[..], PieceType::Dragon)));
     }
 
     #[test]
