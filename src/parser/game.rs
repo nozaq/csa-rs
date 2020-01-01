@@ -236,95 +236,94 @@ mod tests {
     use super::*;
 
     use chrono::{NaiveDate, NaiveTime};
-    use nom::IResult;
 
     #[test]
     fn parse_comment() {
         assert_eq!(
             comment(b"'this is a comment"),
-            IResult::Done(&b""[..], &b"this is a comment"[..])
+            Result::Ok((&b""[..], &b"this is a comment"[..]))
         );
     }
 
     #[test]
     fn parse_piece_type() {
-        assert_eq!(piece_type(b"FU"), IResult::Done(&b""[..], PieceType::Pawn));
-        assert_eq!(piece_type(b"KY"), IResult::Done(&b""[..], PieceType::Lance));
+        assert_eq!(piece_type(b"FU"), Result::Ok((&b""[..], PieceType::Pawn)));
+        assert_eq!(piece_type(b"KY"), Result::Ok((&b""[..], PieceType::Lance)));
         assert_eq!(
             piece_type(b"KE"),
-            IResult::Done(&b""[..], PieceType::Knight)
+            Result::Ok((&b""[..], PieceType::Knight))
         );
         assert_eq!(
             piece_type(b"GI"),
-            IResult::Done(&b""[..], PieceType::Silver)
+            Result::Ok((&b""[..], PieceType::Silver))
         );
-        assert_eq!(piece_type(b"KI"), IResult::Done(&b""[..], PieceType::Gold));
+        assert_eq!(piece_type(b"KI"), Result::Ok((&b""[..], PieceType::Gold)));
         assert_eq!(
             piece_type(b"KA"),
-            IResult::Done(&b""[..], PieceType::Bishop)
+            Result::Ok((&b""[..], PieceType::Bishop))
         );
-        assert_eq!(piece_type(b"HI"), IResult::Done(&b""[..], PieceType::Rook));
-        assert_eq!(piece_type(b"OU"), IResult::Done(&b""[..], PieceType::King));
+        assert_eq!(piece_type(b"HI"), Result::Ok((&b""[..], PieceType::Rook)));
+        assert_eq!(piece_type(b"OU"), Result::Ok((&b""[..], PieceType::King)));
         assert_eq!(
             piece_type(b"TO"),
-            IResult::Done(&b""[..], PieceType::ProPawn)
+            Result::Ok((&b""[..], PieceType::ProPawn))
         );
         assert_eq!(
             piece_type(b"NY"),
-            IResult::Done(&b""[..], PieceType::ProLance)
+            Result::Ok((&b""[..], PieceType::ProLance))
         );
         assert_eq!(
             piece_type(b"NK"),
-            IResult::Done(&b""[..], PieceType::ProKnight)
+            Result::Ok((&b""[..], PieceType::ProKnight))
         );
         assert_eq!(
             piece_type(b"NG"),
-            IResult::Done(&b""[..], PieceType::ProSilver)
+            Result::Ok((&b""[..], PieceType::ProSilver))
         );
-        assert_eq!(piece_type(b"UM"), IResult::Done(&b""[..], PieceType::Horse));
+        assert_eq!(piece_type(b"UM"), Result::Ok((&b""[..], PieceType::Horse)));
         assert_eq!(
             piece_type(b"RY"),
-            IResult::Done(&b""[..], PieceType::Dragon)
+            Result::Ok((&b""[..], PieceType::Dragon))
         );
     }
 
     #[test]
     fn parse_one_digit() {
-        assert_eq!(one_digit(b"0"), IResult::Done(&b""[..], 0));
-        assert_eq!(one_digit(b"1"), IResult::Done(&b""[..], 1));
-        assert_eq!(one_digit(b"2"), IResult::Done(&b""[..], 2));
-        assert_eq!(one_digit(b"3"), IResult::Done(&b""[..], 3));
-        assert_eq!(one_digit(b"4"), IResult::Done(&b""[..], 4));
-        assert_eq!(one_digit(b"5"), IResult::Done(&b""[..], 5));
-        assert_eq!(one_digit(b"6"), IResult::Done(&b""[..], 6));
-        assert_eq!(one_digit(b"7"), IResult::Done(&b""[..], 7));
-        assert_eq!(one_digit(b"8"), IResult::Done(&b""[..], 8));
-        assert_eq!(one_digit(b"9"), IResult::Done(&b""[..], 9));
-        assert_eq!(one_digit(b"10"), IResult::Done(&b"0"[..], 1));
+        assert_eq!(one_digit(b"0"), Result::Ok((&b""[..], 0)));
+        assert_eq!(one_digit(b"1"), Result::Ok((&b""[..], 1)));
+        assert_eq!(one_digit(b"2"), Result::Ok((&b""[..], 2)));
+        assert_eq!(one_digit(b"3"), Result::Ok((&b""[..], 3)));
+        assert_eq!(one_digit(b"4"), Result::Ok((&b""[..], 4)));
+        assert_eq!(one_digit(b"5"), Result::Ok((&b""[..], 5)));
+        assert_eq!(one_digit(b"6"), Result::Ok((&b""[..], 6)));
+        assert_eq!(one_digit(b"7"), Result::Ok((&b""[..], 7)));
+        assert_eq!(one_digit(b"8"), Result::Ok((&b""[..], 8)));
+        assert_eq!(one_digit(b"9"), Result::Ok((&b""[..], 9)));
+        assert_eq!(one_digit(b"10"), Result::Ok((&b"0"[..], 1)));
     }
 
     #[test]
     fn parse_square() {
-        assert_eq!(square(b"00"), IResult::Done(&b""[..], Square::new(0, 0)));
-        assert_eq!(square(b"99"), IResult::Done(&b""[..], Square::new(9, 9)));
+        assert_eq!(square(b"00"), Result::Ok((&b""[..], Square::new(0, 0))));
+        assert_eq!(square(b"99"), Result::Ok((&b""[..], Square::new(9, 9))));
     }
 
     #[test]
     fn parse_version() {
-        assert_eq!(version(b"V2"), IResult::Done(&b""[..], &b"2"[..]));
-        assert_eq!(version(b"V2.1"), IResult::Done(&b""[..], &b"2.1"[..]));
-        assert_eq!(version(b"V2.2"), IResult::Done(&b""[..], &b"2.2"[..]));
+        assert_eq!(version(b"V2"), Result::Ok((&b""[..], &b"2"[..])));
+        assert_eq!(version(b"V2.1"), Result::Ok((&b""[..], &b"2.1"[..])));
+        assert_eq!(version(b"V2.2"), Result::Ok((&b""[..], &b"2.2"[..])));
     }
 
     #[test]
     fn parse_players() {
         assert_eq!(
             black_player(b"N+black player"),
-            IResult::Done(&b""[..], &b"black player"[..])
+            Result::Ok((&b""[..], &b"black player"[..]))
         );
         assert_eq!(
             white_player(b"N-white player"),
-            IResult::Done(&b""[..], &b"white player"[..])
+            Result::Ok((&b""[..], &b"white player"[..]))
         );
     }
 
@@ -332,14 +331,14 @@ mod tests {
     fn parse_game_attr() {
         assert_eq!(
             game_attr(b"$EVENT:event"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 ("EVENT".to_string(), GameAttribute::Str("event".to_string()))
-            )
+            ))
         );
         assert_eq!(
             game_attr(b"$START_TIME:2002/01/01 19:00:00"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 (
                     "START_TIME".to_string(),
@@ -348,22 +347,22 @@ mod tests {
                         time: Some(NaiveTime::from_hms(19, 0, 0))
                     })
                 )
-            )
+            ))
         );
     }
 
     #[test]
     fn parse_handicap() {
-        assert_eq!(handicap(b"PI"), IResult::Done(&b""[..], vec![]));
+        assert_eq!(handicap(b"PI"), Result::Ok((&b""[..], vec![])));
         assert_eq!(
             handicap(b"PI82HI22KA"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 vec![
                     (Square::new(8, 2), PieceType::Rook),
                     (Square::new(2, 2), PieceType::Bishop)
                 ]
-            )
+            ))
         );
     }
 
@@ -452,27 +451,27 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
             ],
         ];
 
-        assert_eq!(grid(grid_str), IResult::Done(&b""[..], initial_pos));
+        assert_eq!(grid(grid_str), Result::Ok((&b""[..], initial_pos)));
     }
 
     #[test]
     fn parse_piece_placement() {
         assert_eq!(
             piece_placement(b"P+99KY89KE"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 vec![
                     (Color::Black, Square::new(9, 9), PieceType::Lance),
                     (Color::Black, Square::new(8, 9), PieceType::Knight),
                 ]
-            )
+            ))
         );
         assert_eq!(
             piece_placement(b"P-00AL"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 vec![(Color::White, Square::new(0, 0), PieceType::All),]
-            )
+            ))
         );
     }
 
@@ -480,7 +479,7 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
     fn parse_normal_move() {
         assert_eq!(
             normal_move(b"+2726FU"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 Action::Move(
                     Color::Black,
@@ -488,11 +487,11 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
                     Square::new(2, 6),
                     PieceType::Pawn
                 )
-            )
+            ))
         );
         assert_eq!(
             normal_move(b"-3334FU"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 Action::Move(
                     Color::White,
@@ -500,7 +499,7 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
                     Square::new(3, 4),
                     PieceType::Pawn
                 )
-            )
+            ))
         );
     }
 
@@ -508,43 +507,43 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
     fn parse_special_move() {
         assert_eq!(
             special_move(b"%TORYO"),
-            IResult::Done(&b""[..], Action::Toryo)
+            Result::Ok((&b""[..], Action::Toryo))
         );
         assert_eq!(
             special_move(b"%MATTA"),
-            IResult::Done(&b""[..], Action::Matta)
+            Result::Ok((&b""[..], Action::Matta))
         );
         assert_eq!(
             special_move(b"%TSUMI"),
-            IResult::Done(&b""[..], Action::Tsumi)
+            Result::Ok((&b""[..], Action::Tsumi))
         );
         assert_eq!(
             special_move(b"%ERROR"),
-            IResult::Done(&b""[..], Action::Error)
+            Result::Ok((&b""[..], Action::Error))
         );
         assert_eq!(
             special_move(b"%KACHI"),
-            IResult::Done(&b""[..], Action::Kachi)
+            Result::Ok((&b""[..], Action::Kachi))
         );
         assert_eq!(
             special_move(b"%CHUDAN"),
-            IResult::Done(&b""[..], Action::Chudan)
+            Result::Ok((&b""[..], Action::Chudan))
         );
         assert_eq!(
             special_move(b"%FUZUMI"),
-            IResult::Done(&b""[..], Action::Fuzumi)
+            Result::Ok((&b""[..], Action::Fuzumi))
         );
         assert_eq!(
             special_move(b"%JISHOGI"),
-            IResult::Done(&b""[..], Action::Jishogi)
+            Result::Ok((&b""[..], Action::Jishogi))
         );
         assert_eq!(
             special_move(b"%HIKIWAKE"),
-            IResult::Done(&b""[..], Action::Hikiwake)
+            Result::Ok((&b""[..], Action::Hikiwake))
         );
         assert_eq!(
             special_move(b"%SENNICHITE"),
-            IResult::Done(&b""[..], Action::Sennichite)
+            Result::Ok((&b""[..], Action::Sennichite))
         );
     }
 
@@ -552,7 +551,7 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
     fn parse_move_record() {
         assert_eq!(
             move_record(b"+2726FU\nT5"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 MoveRecord {
                     action: Action::Move(
@@ -563,11 +562,11 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
                     ),
                     time: Some(Duration::from_secs(5))
                 }
-            )
+            ))
         );
         assert_eq!(
             move_record(b"+2726FU"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 MoveRecord {
                     action: Action::Move(
@@ -578,28 +577,28 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
                     ),
                     time: None
                 }
-            )
+            ))
         );
 
         assert_eq!(
             move_record(b"%TORYO\nT5"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 MoveRecord {
                     action: Action::Toryo,
                     time: Some(Duration::from_secs(5))
                 }
-            )
+            ))
         );
         assert_eq!(
             move_record(b"%TORYO"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 MoveRecord {
                     action: Action::Toryo,
                     time: None
                 }
-            )
+            ))
         );
     }
 
@@ -720,7 +719,7 @@ T6
 
         assert_eq!(
             game_record(csa.as_bytes()),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 GameRecord {
                     black_player: Some("NAKAHARA".to_string()),
@@ -771,7 +770,7 @@ T6
                         }
                     ],
                 }
-            )
+            ))
         )
     }
 }

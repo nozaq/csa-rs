@@ -75,59 +75,57 @@ named!(pub timelimit<TimeLimit>, do_parse!(
 mod tests {
     use super::*;
 
-    use nom::{ErrorKind, IResult};
-
     #[test]
     fn parse_year() {
-        assert_eq!(year(b"0001"), IResult::Done(&b""[..], 1));
-        assert_eq!(year(b"9999"), IResult::Done(&b""[..], 9999));
+        assert_eq!(year(b"0001"), Result::Ok((&b""[..], 1)));
+        assert_eq!(year(b"9999"), Result::Ok((&b""[..], 9999)));
     }
 
     #[test]
     fn parse_month() {
-        assert_eq!(month(b"00"), IResult::Error(ErrorKind::Verify));
-        assert_eq!(month(b"01"), IResult::Done(&b""[..], 1));
-        assert_eq!(month(b"12"), IResult::Done(&b""[..], 12));
-        assert_eq!(month(b"13"), IResult::Error(ErrorKind::Verify));
+        assert!(month(b"00").is_err());
+        assert_eq!(month(b"01"), Result::Ok((&b""[..], 1)));
+        assert_eq!(month(b"12"), Result::Ok((&b""[..], 12)));
+        assert!(month(b"13").is_err());
     }
 
     #[test]
     fn parse_day() {
-        assert_eq!(day(b"00"), IResult::Error(ErrorKind::Verify));
-        assert_eq!(day(b"01"), IResult::Done(&b""[..], 1));
-        assert_eq!(day(b"31"), IResult::Done(&b""[..], 31));
-        assert_eq!(day(b"32"), IResult::Error(ErrorKind::Verify));
+        assert!(day(b"00").is_err());
+        assert_eq!(day(b"01"), Result::Ok((&b""[..], 1)));
+        assert_eq!(day(b"31"), Result::Ok((&b""[..], 31)));
+        assert!(day(b"32").is_err());
     }
 
     #[test]
     fn parse_hour() {
-        assert_eq!(hour(b"00"), IResult::Done(&b""[..], 0));
-        assert_eq!(hour(b"01"), IResult::Done(&b""[..], 1));
-        assert_eq!(hour(b"23"), IResult::Done(&b""[..], 23));
-        assert_eq!(hour(b"25"), IResult::Error(ErrorKind::Verify));
+        assert_eq!(hour(b"00"), Result::Ok((&b""[..], 0)));
+        assert_eq!(hour(b"01"), Result::Ok((&b""[..], 1)));
+        assert_eq!(hour(b"23"), Result::Ok((&b""[..], 23)));
+        assert!(hour(b"25").is_err());
     }
 
     #[test]
     fn parse_minutes() {
-        assert_eq!(minutes(b"00"), IResult::Done(&b""[..], 0));
-        assert_eq!(minutes(b"01"), IResult::Done(&b""[..], 1));
-        assert_eq!(minutes(b"59"), IResult::Done(&b""[..], 59));
-        assert_eq!(minutes(b"60"), IResult::Error(ErrorKind::Verify));
+        assert_eq!(minutes(b"00"), Result::Ok((&b""[..], 0)));
+        assert_eq!(minutes(b"01"), Result::Ok((&b""[..], 1)));
+        assert_eq!(minutes(b"59"), Result::Ok((&b""[..], 59)));
+        assert!(minutes(b"60").is_err());
     }
 
     #[test]
     fn parse_seconds() {
-        assert_eq!(seconds(b"00"), IResult::Done(&b""[..], 0));
-        assert_eq!(seconds(b"01"), IResult::Done(&b""[..], 1));
-        assert_eq!(seconds(b"59"), IResult::Done(&b""[..], 59));
-        assert_eq!(seconds(b"60"), IResult::Error(ErrorKind::Verify));
+        assert_eq!(seconds(b"00"), Result::Ok((&b""[..], 0)));
+        assert_eq!(seconds(b"01"), Result::Ok((&b""[..], 1)));
+        assert_eq!(seconds(b"59"), Result::Ok((&b""[..], 59)));
+        assert!(seconds(b"60").is_err());
     }
 
     #[test]
     fn parse_date() {
         assert_eq!(
             date(b"2002/01/01"),
-            IResult::Done(&b""[..], NaiveDate::from_ymd(2002, 1, 1))
+            Result::Ok((&b""[..], NaiveDate::from_ymd(2002, 1, 1)))
         );
     }
 
@@ -135,7 +133,7 @@ mod tests {
     fn parse_time() {
         assert_eq!(
             time(b"19:00:00"),
-            IResult::Done(&b""[..], NaiveTime::from_hms(19, 0, 0))
+            Result::Ok((&b""[..], NaiveTime::from_hms(19, 0, 0)))
         );
     }
 
@@ -143,23 +141,23 @@ mod tests {
     fn parse_datetime() {
         assert_eq!(
             datetime(b"2002/01/01"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 Time {
                     date: NaiveDate::from_ymd(2002, 1, 1),
                     time: None
                 }
-            )
+            ))
         );
         assert_eq!(
             datetime(b"2002/01/01 19:00:00"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 Time {
                     date: NaiveDate::from_ymd(2002, 1, 1),
                     time: Some(NaiveTime::from_hms(19, 0, 0))
                 }
-            )
+            ))
         );
     }
 
@@ -167,33 +165,33 @@ mod tests {
     fn parse_timelimit() {
         assert_eq!(
             timelimit(b"00:25+00"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 TimeLimit {
                     main_time: Duration::from_secs(25 * 60),
                     byoyomi: Duration::from_secs(0)
                 }
-            )
+            ))
         );
         assert_eq!(
             timelimit(b"00:30+30"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 TimeLimit {
                     main_time: Duration::from_secs(30 * 60),
                     byoyomi: Duration::from_secs(30)
                 }
-            )
+            ))
         );
         assert_eq!(
             timelimit(b"00:00+30"),
-            IResult::Done(
+            Result::Ok((
                 &b""[..],
                 TimeLimit {
                     main_time: Duration::from_secs(0),
                     byoyomi: Duration::from_secs(30)
                 }
-            )
+            ))
         );
     }
 }
