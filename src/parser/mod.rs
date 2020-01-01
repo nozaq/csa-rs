@@ -28,7 +28,7 @@ impl Error for CsaError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn cause(&self) -> Option<&dyn Error> {
         match *self {
             CsaError::ParseError(ref err) => Some(err),
         }
