@@ -20,7 +20,7 @@ named!(
     decimal<Duration>,
     map_res!(digit, |s| str::from_utf8(s)
         .map(|s| s.parse::<u64>().unwrap())
-        .map(|i| Duration::from_secs(i)))
+        .map(Duration::from_secs))
 );
 
 named!(fu<PieceType>, value!(PieceType::Pawn, tag!("FU")));
@@ -182,7 +182,7 @@ named!(pub game_record<GameRecord>, do_parse!(
     many0!(comment_line) >>
     attrs: map!(
         opt!(terminated!(separated_list!(line_sep, preceded!(many0!(comment_line), game_attr)), line_sep)), 
-        |v: Option<Vec<(String, GameAttribute)>>| v.unwrap_or(Vec::new())
+        |v: Option<Vec<(String, GameAttribute)>>| v.unwrap_or_default()
     ) >>
     many0!(comment_line) >>
     drop_pieces: opt!(terminated!(handicap, line_sep)) >>
@@ -220,9 +220,9 @@ named!(pub game_record<GameRecord>, do_parse!(
         ),
         opening: attrs.iter().find(|pair| pair.0 == "OPENING").map(|pair| pair.1.to_string()),
         start_pos: Position{
-            drop_pieces: drop_pieces.unwrap_or(vec![]),
+            drop_pieces: drop_pieces.unwrap_or_else(|| vec![]),
             bulk,
-            add_pieces: add_pieces.into_iter().flat_map(|c| c).collect(),
+            add_pieces: add_pieces.into_iter().flatten().collect(),
             side_to_move,
         },
         moves,

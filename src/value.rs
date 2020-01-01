@@ -206,10 +206,12 @@ impl fmt::Display for PieceType {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+type Board = [[Option<(Color, PieceType)>; 9]; 9];
+
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Position {
     pub drop_pieces: Vec<(Square, PieceType)>,
-    pub bulk: Option<[[Option<(Color, PieceType)>; 9]; 9]>,
+    pub bulk: Option<Board>,
     pub add_pieces: Vec<(Color, Square, PieceType)>,
     pub side_to_move: Color,
 }
@@ -227,14 +229,14 @@ impl fmt::Display for Position {
                     }
                 }
 
-                writeln!(f, "")?;
+                writeln!(f)?;
             }
         } else {
             write!(f, "PI")?;
             for &(ref sq, ref pt) in &self.drop_pieces {
                 write!(f, "{}{}", sq, pt)?;
             }
-            writeln!(f, "")?;
+            writeln!(f)?;
         }
 
         for &(ref color, ref sq, ref pt) in &self.add_pieces {
