@@ -1,7 +1,6 @@
 mod game;
 mod time;
 
-use nom::ErrorKind;
 use std::error::Error;
 use std::fmt;
 
@@ -10,43 +9,28 @@ use crate::value::GameRecord;
 
 #[derive(Debug)]
 pub enum CsaError {
-    ParseError(ErrorKind),
+    ParseError(),
 }
 
 impl fmt::Display for CsaError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            CsaError::ParseError(ref err) => write!(f, "failed to parse: {}", err.description()),
+            CsaError::ParseError() => write!(f, "failed to parse"),
         }
     }
 }
 
 impl Error for CsaError {
-    fn description(&self) -> &str {
-        match *self {
-            CsaError::ParseError(_) => "failed to parse the csa content",
-        }
-    }
-
-    fn cause(&self) -> Option<&dyn Error> {
-        match *self {
-            CsaError::ParseError(ref err) => Some(err),
-        }
-    }
-}
-
-impl From<ErrorKind> for CsaError {
-    fn from(err: ErrorKind) -> CsaError {
-        CsaError::ParseError(err)
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 pub fn parse_csa(s: &str) -> Result<GameRecord, CsaError> {
-    let record = game_record(s.as_bytes()).to_result()?;
-
-    Ok(record)
+    if let Ok((_, record)) = game_record(s.as_bytes()) {
+        Ok(record)
+    } else {
+        Err(CsaError::ParseError())
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
