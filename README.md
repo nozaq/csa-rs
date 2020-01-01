@@ -11,9 +11,9 @@ A Shogi game serialization/deserialization library in CSA format.
 
 ## Usage
 
-```
+```toml
 [dependencies]
-csa = "0.4"
+csa = "0.5"
 ```
 
 ## License
