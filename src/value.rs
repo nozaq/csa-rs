@@ -374,24 +374,26 @@ mod tests {
 
     #[test]
     fn game_record() {
-        let mut g = GameRecord::default();
-        g.black_player = Some("NAKAHARA".to_string());
-        g.white_player = Some("YONENAGA".to_string());
-        g.event = Some("13th World Computer Shogi Championship".to_string());
-        g.site = Some("KAZUSA ARC".to_string());
-        g.start_time = Some(Time {
-            date: NaiveDate::from_ymd(2003, 5, 3),
-            time: Some(NaiveTime::from_hms(10, 30, 0)),
-        });
-        g.end_time = Some(Time {
-            date: NaiveDate::from_ymd(2003, 5, 3),
-            time: Some(NaiveTime::from_hms(11, 11, 5)),
-        });
-        g.time_limit = Some(TimeLimit {
-            main_time: Duration::from_secs(1500),
-            byoyomi: Duration::from_secs(0),
-        });
-        g.opening = Some("YAGURA".to_string());
+        let mut g = GameRecord {
+            black_player: Some("NAKAHARA".to_string()),
+            white_player: Some("YONENAGA".to_string()),
+            event: Some("13th World Computer Shogi Championship".to_string()),
+            site: Some("KAZUSA ARC".to_string()),
+            start_time: Some(Time {
+                date: NaiveDate::from_ymd(2003, 5, 3),
+                time: Some(NaiveTime::from_hms(10, 30, 0)),
+            }),
+            end_time: Some(Time {
+                date: NaiveDate::from_ymd(2003, 5, 3),
+                time: Some(NaiveTime::from_hms(11, 11, 5)),
+            }),
+            time_limit: Some(TimeLimit {
+                main_time: Duration::from_secs(1500),
+                byoyomi: Duration::from_secs(0),
+            }),
+            opening: Some("YAGURA".to_string()),
+            ..GameRecord::default()
+        };
         g.moves.push(MoveRecord {
             action: Action::Move(
                 Color::Black,

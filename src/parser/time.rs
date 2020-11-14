@@ -34,15 +34,15 @@ fn day(input: &[u8]) -> IResult<&[u8], i32> {
 }
 
 fn hour(input: &[u8]) -> IResult<&[u8], i32> {
-    verify(take_2_digits, |&d| d >= 0 && d < 24)(input)
+    verify(take_2_digits, |&d| (0..24).contains(&d))(input)
 }
 
 fn minutes(input: &[u8]) -> IResult<&[u8], i32> {
-    verify(take_2_digits, |&d| d >= 0 && d < 60)(input)
+    verify(take_2_digits, |&d| (0..60).contains(&d))(input)
 }
 
 fn seconds(input: &[u8]) -> IResult<&[u8], i32> {
-    verify(take_2_digits, |&d| d >= 0 && d < 60)(input)
+    verify(take_2_digits, |&d| (0..60).contains(&d))(input)
 }
 
 fn date(input: &[u8]) -> IResult<&[u8], NaiveDate> {
