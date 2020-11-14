@@ -309,7 +309,7 @@ pub fn game_record(input: &[u8]) -> IResult<&[u8], GameRecord> {
                 .find(|pair| pair.0 == "OPENING")
                 .map(|pair| pair.1.to_string()),
             start_pos: Position {
-                drop_pieces: drop_pieces.unwrap_or_else(|| vec![]),
+                drop_pieces: drop_pieces.unwrap_or_else(Vec::new),
                 bulk,
                 add_pieces: add_pieces.into_iter().flatten().collect(),
                 side_to_move,
