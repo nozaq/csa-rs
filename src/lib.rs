@@ -71,7 +71,7 @@
 //! assert_eq!(csa_str, g.to_string());
 //! ```
 //!
-//! [CSA]: http://www.computer-shogi.org/protocol/record_v22.html
+//! [CSA]: http://www2.computer-shogi.org/protocol/record_v22.html
 
 pub mod parser;
 pub mod value;
