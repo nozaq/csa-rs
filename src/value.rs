@@ -219,7 +219,7 @@ pub struct Position {
 impl fmt::Display for Position {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(ref bulk) = self.bulk {
-            for (i, ref row) in bulk.iter().enumerate() {
+            for (i, row) in bulk.iter().enumerate() {
                 write!(f, "P{}", i + 1)?;
 
                 for pc in row.iter() {

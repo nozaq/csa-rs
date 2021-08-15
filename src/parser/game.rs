@@ -2,7 +2,7 @@ use nom::branch::alt;
 use nom::bytes::complete::{is_a, is_not, tag, take};
 use nom::character::complete::{anychar, digit1, one_of};
 use nom::combinator::{map, map_res, opt, value};
-use nom::multi::{count, many0, separated_list};
+use nom::multi::{count, many0, separated_list0};
 use nom::sequence::{delimited, preceded, separated_pair, terminated, tuple};
 use nom::*;
 use std::str;
@@ -255,7 +255,7 @@ pub fn game_record(input: &[u8]) -> IResult<&[u8], GameRecord> {
     let (input, _) = many0(comment_line)(input)?;
     let (input, attrs) = map(
         opt(terminated(
-            separated_list(line_sep, preceded(many0(comment_line), game_attr)),
+            separated_list0(line_sep, preceded(many0(comment_line), game_attr)),
             line_sep,
         )),
         |v: Option<Vec<(String, GameAttribute)>>| v.unwrap_or_default(),
