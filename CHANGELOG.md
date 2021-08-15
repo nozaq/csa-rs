@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="0.6.1"></a>
+## [0.6.1] - 2021-08-15
+### Refactor
+- upgrade dependencies ([#10](https://github.com/nozaq/shogi-rs/issues/10))
+
+
 <a name="0.6.0"></a>
 ## [0.6.0] - 2020-11-14
 ### Fix
@@ -40,7 +46,8 @@
 <a name="0.1"></a>
 ## 0.1 - 2017-06-13
 
-[Unreleased]: https://github.com/nozaq/shogi-rs/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/nozaq/shogi-rs/compare/0.6.1...HEAD
+[0.6.1]: https://github.com/nozaq/shogi-rs/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/nozaq/shogi-rs/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/nozaq/shogi-rs/compare/0.5,0...0.5.0
 [0.5,0]: https://github.com/nozaq/shogi-rs/compare/0.4.0...0.5,0
