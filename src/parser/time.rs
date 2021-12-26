@@ -1,11 +1,12 @@
-use chrono::{NaiveDate, NaiveTime};
 use nom::bytes::complete::{tag, take};
 use nom::character::complete::digit1;
 use nom::combinator::{map_res, opt, verify};
 use nom::sequence::preceded;
 use nom::*;
+use std::convert::TryFrom;
 use std::str;
 use std::time::Duration;
+use time::{Date as NativeDate, Month, Time as NativeTime};
 
 use crate::value::{Time, TimeLimit};
 
@@ -45,17 +46,20 @@ fn seconds(input: &[u8]) -> IResult<&[u8], i32> {
     verify(take_2_digits, |&d| (0..60).contains(&d))(input)
 }
 
-fn date(input: &[u8]) -> IResult<&[u8], NaiveDate> {
+fn date(input: &[u8]) -> IResult<&[u8], NativeDate> {
     let (input, year) = year(input)?;
     let (input, _) = tag("/")(input)?;
     let (input, month) = month(input)?;
     let (input, _) = tag("/")(input)?;
     let (input, day) = day(input)?;
 
-    Ok((input, NaiveDate::from_ymd(year, month as u32, day as u32)))
+    let month = Month::try_from(month as u8).unwrap();
+    let date = NativeDate::from_calendar_date(year, month, day as u8).unwrap();
+
+    Ok((input, date))
 }
 
-fn time(input: &[u8]) -> IResult<&[u8], NaiveTime> {
+fn time(input: &[u8]) -> IResult<&[u8], NativeTime> {
     let (input, hour) = hour(input)?;
     let (input, _) = tag(":")(input)?;
     let (input, minutes) = minutes(input)?;
@@ -64,7 +68,7 @@ fn time(input: &[u8]) -> IResult<&[u8], NaiveTime> {
 
     Ok((
         input,
-        NaiveTime::from_hms(hour as u32, minutes as u32, seconds as u32),
+        time::Time::from_hms(hour as u8, minutes as u8, seconds as u8).unwrap(),
     ))
 }
 
@@ -147,7 +151,10 @@ mod tests {
     fn parse_date() {
         assert_eq!(
             date(b"2002/01/01"),
-            Result::Ok((&b""[..], NaiveDate::from_ymd(2002, 1, 1)))
+            Result::Ok((
+                &b""[..],
+                NativeDate::from_calendar_date(2002, Month::January, 1).unwrap()
+            ))
         );
     }
 
@@ -155,7 +162,7 @@ mod tests {
     fn parse_time() {
         assert_eq!(
             time(b"19:00:00"),
-            Result::Ok((&b""[..], NaiveTime::from_hms(19, 0, 0)))
+            Result::Ok((&b""[..], NativeTime::from_hms(19, 0, 0).unwrap()))
         );
     }
 
@@ -166,7 +173,7 @@ mod tests {
             Result::Ok((
                 &b""[..],
                 Time {
-                    date: NaiveDate::from_ymd(2002, 1, 1),
+                    date: NativeDate::from_calendar_date(2002, Month::January, 1).unwrap(),
                     time: None
                 }
             ))
@@ -176,8 +183,8 @@ mod tests {
             Result::Ok((
                 &b""[..],
                 Time {
-                    date: NaiveDate::from_ymd(2002, 1, 1),
-                    time: Some(NaiveTime::from_hms(19, 0, 0))
+                    date: NativeDate::from_calendar_date(2002, Month::January, 1).unwrap(),
+                    time: Some(NativeTime::from_hms(19, 0, 0).unwrap())
                 }
             ))
         );

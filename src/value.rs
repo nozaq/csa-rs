@@ -1,6 +1,6 @@
-use chrono::{NaiveDate, NaiveTime};
 use std::fmt;
 use std::time::Duration;
+use time::{Date as NativeDate, Time as NativeTime};
 
 #[derive(Default, Debug, PartialEq, Eq)]
 pub struct GameRecord {
@@ -59,15 +59,27 @@ impl fmt::Display for GameRecord {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Time {
-    pub date: NaiveDate,
-    pub time: Option<NaiveTime>,
+    pub date: NativeDate,
+    pub time: Option<NativeTime>,
 }
 
 impl fmt::Display for Time {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.date.format("%Y/%m/%d"))?;
+        write!(
+            f,
+            "{}/{:02}/{:02}",
+            self.date.year(),
+            self.date.month() as u8,
+            self.date.day()
+        )?;
         if let Some(time) = self.time {
-            write!(f, " {}", time.format("%H:%M:%S"))?;
+            write!(
+                f,
+                " {}:{:02}:{:02}",
+                time.hour(),
+                time.minute(),
+                time.second()
+            )?;
         }
 
         Ok(())
@@ -380,12 +392,12 @@ mod tests {
             event: Some("13th World Computer Shogi Championship".to_string()),
             site: Some("KAZUSA ARC".to_string()),
             start_time: Some(Time {
-                date: NaiveDate::from_ymd(2003, 5, 3),
-                time: Some(NaiveTime::from_hms(10, 30, 0)),
+                date: time::Date::from_calendar_date(2003, time::Month::May, 3).unwrap(),
+                time: Some(time::Time::from_hms(10, 30, 0).unwrap()),
             }),
             end_time: Some(Time {
-                date: NaiveDate::from_ymd(2003, 5, 3),
-                time: Some(NaiveTime::from_hms(11, 11, 5)),
+                date: time::Date::from_calendar_date(2003, time::Month::May, 3).unwrap(),
+                time: Some(time::Time::from_hms(11, 11, 5).unwrap()),
             }),
             time_limit: Some(TimeLimit {
                 main_time: Duration::from_secs(1500),

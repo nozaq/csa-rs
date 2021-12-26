@@ -325,7 +325,7 @@ pub fn game_record(input: &[u8]) -> IResult<&[u8], GameRecord> {
 mod tests {
     use super::*;
 
-    use chrono::{NaiveDate, NaiveTime};
+    use time::{Date as NativeDate, Time as NativeTime};
 
     #[test]
     fn parse_comment() {
@@ -421,8 +421,9 @@ mod tests {
                 (
                     "START_TIME".to_string(),
                     GameAttribute::Time(Time {
-                        date: NaiveDate::from_ymd(2002, 1, 1),
-                        time: Some(NaiveTime::from_hms(19, 0, 0))
+                        date: NativeDate::from_calendar_date(2002, time::Month::January, 1)
+                            .unwrap(),
+                        time: Some(NativeTime::from_hms(19, 0, 0).unwrap())
                     })
                 )
             ))
@@ -805,12 +806,12 @@ T6
                     event: Some("13th World Computer Shogi Championship".to_string()),
                     site: Some("KAZUSA ARC".to_string()),
                     start_time: Some(Time {
-                        date: NaiveDate::from_ymd(2003, 5, 3),
-                        time: Some(NaiveTime::from_hms(10, 30, 0))
+                        date: NativeDate::from_calendar_date(2003, time::Month::May, 3).unwrap(),
+                        time: Some(NativeTime::from_hms(10, 30, 0).unwrap())
                     }),
                     end_time: Some(Time {
-                        date: NaiveDate::from_ymd(2003, 5, 3),
-                        time: Some(NaiveTime::from_hms(11, 11, 5))
+                        date: NativeDate::from_calendar_date(2003, time::Month::May, 3).unwrap(),
+                        time: Some(NativeTime::from_hms(11, 11, 5).unwrap())
                     }),
                     time_limit: Some(TimeLimit {
                         main_time: Duration::from_secs(1500),
