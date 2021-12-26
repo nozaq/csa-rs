@@ -58,9 +58,21 @@ impl fmt::Display for GameRecord {
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+
 pub struct Time {
     pub date: NativeDate,
     pub time: Option<NativeTime>,
+}
+
+impl Time {
+    pub fn now() -> Self {
+        let now = time::OffsetDateTime::now_utc();
+
+        Time {
+            date: now.date(),
+            time: Some(now.time()),
+        }
+    }
 }
 
 impl fmt::Display for Time {
