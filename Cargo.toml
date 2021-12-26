@@ -9,10 +9,10 @@ repository = "https://github.com/nozaq/csa-rs"
 documentation = "http://nozaq.github.io/csa-rs"
 readme = "README.md"
 license = "MIT"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-chrono = "0.4"
+time = { version = "0.3.5", features = ["formatting", "std"] }
 nom = "6"
 
 [badges]
