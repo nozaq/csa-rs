@@ -131,7 +131,7 @@ fn white_player(input: &[u8]) -> IResult<&[u8], &[u8]> {
 }
 
 fn game_text_attr(input: &[u8]) -> IResult<&[u8], GameAttribute> {
-    map(map_res(not_line_sep, |s| str::from_utf8(s)), |s: &str| {
+    map(map_res(not_line_sep, str::from_utf8), |s: &str| {
         GameAttribute::Str(s.to_string())
     })(input)
 }

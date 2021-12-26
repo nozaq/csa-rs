@@ -59,7 +59,7 @@ mod tests {
                 .expect("failed to load a fixuture content");
             let res = parse_csa(&contents);
 
-            assert_eq!(res.is_ok(), true);
+            assert!(res.is_ok());
         }
     }
 }
