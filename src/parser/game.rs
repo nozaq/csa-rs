@@ -3,7 +3,7 @@ use nom::bytes::complete::{is_a, is_not, tag, take};
 use nom::character::complete::{anychar, digit1, one_of};
 use nom::combinator::{map, map_res, opt, value};
 use nom::multi::{count, many0, separated_list0};
-use nom::sequence::{delimited, preceded, separated_pair, terminated, tuple};
+use nom::sequence::{delimited, pair, preceded, separated_pair, terminated, tuple};
 use nom::*;
 use std::str;
 use std::time::Duration;
@@ -241,6 +241,15 @@ fn move_record(input: &[u8]) -> IResult<&[u8], MoveRecord> {
     Ok((input, MoveRecord { action, time }))
 }
 
+fn move_records(input: &[u8]) -> IResult<&[u8], Vec<MoveRecord>> {
+    let (input, moves) = many0(map(
+        pair(terminated(move_record, line_sep), many0(comment_line)),
+        |(m, _)| m,
+    ))(input)?;
+
+    Ok((input, moves))
+}
+
 pub fn game_record(input: &[u8]) -> IResult<&[u8], GameRecord> {
     let (input, _) = many0(comment_line)(input)?;
     let (input, _) = opt(terminated(version, line_sep))(input)?;
@@ -269,8 +278,7 @@ pub fn game_record(input: &[u8]) -> IResult<&[u8], GameRecord> {
     let (input, _) = many0(comment_line)(input)?;
     let (input, side_to_move) = terminated(color, line_sep)(input)?;
     let (input, _) = many0(comment_line)(input)?;
-    let (input, moves) = many0(terminated(move_record, line_sep))(input)?;
-    let (input, _) = many0(comment_line)(input)?;
+    let (input, moves) = move_records(input)?;
 
     Ok((
         input,
@@ -309,7 +317,7 @@ pub fn game_record(input: &[u8]) -> IResult<&[u8], GameRecord> {
                 .find(|pair| pair.0 == "OPENING")
                 .map(|pair| pair.1.to_string()),
             start_pos: Position {
-                drop_pieces: drop_pieces.unwrap_or_else(Vec::new),
+                drop_pieces: drop_pieces.unwrap_or_default(),
                 bulk,
                 add_pieces: add_pieces.into_iter().flatten().collect(),
                 side_to_move,
@@ -677,6 +685,53 @@ P9+KY+KE+GI+KI+OU+KI+GI+KE+KY";
                     action: Action::Toryo,
                     time: None
                 }
+            ))
+        );
+    }
+
+    #[test]
+    fn parse_move_records() {
+        let records = b"\
++7776FU
+'** 30 -3334FU +2726FU
+-3334FU
+T5
+'*jouseki
++2726FU
+";
+        assert_eq!(
+            move_records(records),
+            Result::Ok((
+                &b""[..],
+                vec![
+                    MoveRecord {
+                        action: Action::Move(
+                            Color::Black,
+                            Square::new(7, 7),
+                            Square::new(7, 6),
+                            PieceType::Pawn
+                        ),
+                        time: None,
+                    },
+                    MoveRecord {
+                        action: Action::Move(
+                            Color::White,
+                            Square::new(3, 3),
+                            Square::new(3, 4),
+                            PieceType::Pawn
+                        ),
+                        time: Some(Duration::from_secs(5)),
+                    },
+                    MoveRecord {
+                        action: Action::Move(
+                            Color::Black,
+                            Square::new(2, 7),
+                            Square::new(2, 6),
+                            PieceType::Pawn
+                        ),
+                        time: None,
+                    },
+                ]
             ))
         );
     }
