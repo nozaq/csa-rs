@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="1.0.1"></a>
+## [1.0.1] - 2022-03-16
+### Fix
+- update parser for move records with comments ([#18](https://github.com/nozaq/shogi-rs/issues/18))
+
+
 <a name="1.0.0"></a>
 ## [1.0.0] - 2021-12-27
 ### Chore
@@ -63,7 +69,8 @@
 <a name="0.1"></a>
 ## 0.1 - 2017-06-13
 
-[Unreleased]: https://github.com/nozaq/shogi-rs/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/nozaq/shogi-rs/compare/1.0.1...HEAD
+[1.0.1]: https://github.com/nozaq/shogi-rs/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/nozaq/shogi-rs/compare/0.6.1...1.0.0
 [0.6.1]: https://github.com/nozaq/shogi-rs/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/nozaq/shogi-rs/compare/0.5.0...0.6.0
