@@ -1,6 +1,6 @@
 [package]
 name = "csa"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["nozaq"]
 description = "A Shogi game serialization/deserialization library in CSA format."
 keywords = ["shogi", "csa", "parser"]
