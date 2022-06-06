@@ -12,8 +12,8 @@ license = "MIT"
 edition = "2021"
 
 [dependencies]
-time = { version = "0.3.5", features = ["formatting", "std"] }
-nom = "6"
+time = { version = "0.3", features = ["formatting", "std"] }
+nom = "7"
 
 [badges]
 travis-ci = { repository = "nozaq/csa-rs" }
