@@ -37,9 +37,9 @@ impl fmt::Display for GameRecord {
             ),
             ("$OPENING:", self.opening.as_ref().map(|x| x.to_string())),
         ];
-        for &(ref key, ref value) in &metadata {
+        for (key, value) in &metadata {
             if let Some(ref value) = *value {
-                writeln!(f, "{}{}", key, value)?;
+                writeln!(f, "{key}{value}")?;
             }
         }
 
@@ -48,7 +48,7 @@ impl fmt::Display for GameRecord {
 
         // Move records
         for record in &self.moves {
-            write!(f, "{}", record)?;
+            write!(f, "{record}")?;
         }
 
         Ok(())
@@ -134,9 +134,9 @@ pub enum GameAttribute {
 impl fmt::Display for GameAttribute {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            GameAttribute::Time(ref time) => write!(f, "{}", time),
-            GameAttribute::TimeLimit(ref time_limit) => write!(f, "{}", time_limit),
-            GameAttribute::Str(ref s) => write!(f, "{}", s),
+            GameAttribute::Time(ref time) => write!(f, "{time}"),
+            GameAttribute::TimeLimit(ref time_limit) => write!(f, "{time_limit}"),
+            GameAttribute::Str(ref s) => write!(f, "{s}"),
         }
     }
 }
@@ -224,7 +224,7 @@ impl fmt::Display for PieceType {
             PieceType::Dragon => "RY",
             PieceType::All => "AL",
         };
-        write!(f, "{}", pt)
+        write!(f, "{pt}")
     }
 }
 
@@ -248,7 +248,7 @@ impl fmt::Display for Position {
 
                 for pc in row.iter() {
                     match *pc {
-                        Some((ref color, ref pt)) => write!(f, "{}{}", color, pt)?,
+                        Some((ref color, ref pt)) => write!(f, "{color}{pt}")?,
                         None => write!(f, " * ")?,
                     }
                 }
@@ -257,14 +257,14 @@ impl fmt::Display for Position {
             }
         } else {
             write!(f, "PI")?;
-            for &(ref sq, ref pt) in &self.drop_pieces {
-                write!(f, "{}{}", sq, pt)?;
+            for (sq, pt) in &self.drop_pieces {
+                write!(f, "{sq}{pt}")?;
             }
             writeln!(f)?;
         }
 
-        for &(ref color, ref sq, ref pt) in &self.add_pieces {
-            writeln!(f, "P{}{}{}", color, sq, pt)?;
+        for (color, sq, pt) in &self.add_pieces {
+            writeln!(f, "P{color}{sq}{pt}")?;
         }
 
         writeln!(f, "{}", self.side_to_move)?;
@@ -297,14 +297,14 @@ impl fmt::Display for Action {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Action::Move(ref color, ref from, ref to, ref pt) => {
-                write!(f, "{}{}{}{}", color, from, to, pt)
+                write!(f, "{color}{from}{to}{pt}")
             }
             Action::Toryo => write!(f, "%TORYO"),
             Action::Chudan => write!(f, "%CHUDAN"),
             Action::Sennichite => write!(f, "%SENNICHITE"),
             Action::TimeUp => write!(f, "%TIME_UP"),
             Action::IllegalMove => write!(f, "%ILLEGAL_MOVE"),
-            Action::IllegalAction(ref color) => write!(f, "%{}ILLEGAL_ACTION", color),
+            Action::IllegalAction(ref color) => write!(f, "%{color}ILLEGAL_ACTION"),
             Action::Jishogi => write!(f, "%JISHOGI"),
             Action::Kachi => write!(f, "%KACHI"),
             Action::Hikiwake => write!(f, "%HIKIWAKE"),
