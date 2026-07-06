@@ -1,9 +1,9 @@
 # csa-rs
 
 [![Github Actions](https://github.com/nozaq/csa-rs/workflows/build/badge.svg)](https://github.com/nozaq/csa-rs/actions?workflow=build)
-[![Coverage Status](https://coveralls.io/repos/github/nozaq/csa-rs/badge.svg)](https://coveralls.io/github/nozaq/csa-rs)
 [![crates.io](https://img.shields.io/crates/v/csa.svg)](https://crates.io/crates/csa)
 [![docs.rs](https://docs.rs/csa/badge.svg)](https://docs.rs/csa)
+[![codecov](https://codecov.io/github/nozaq/csa-rs/graph/badge.svg)](https://codecov.io/github/nozaq/csa-rs)
 
 A Shogi game serialization/deserialization library in CSA format.
 CSA format is a plaintext format for recording Shogi games. This library supports parsing CSA-formatted string as well as composing CSA-formatted string from structs. Detail about CSA format is found at [here](http://www.computer-shogi.org/protocol/record_v22.html).
