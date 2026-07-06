@@ -143,16 +143,11 @@ impl fmt::Display for GameAttribute {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
 pub enum Color {
+    #[default]
     Black,
     White,
-}
-
-impl Default for Color {
-    fn default() -> Self {
-        Color::Black
-    }
 }
 
 impl fmt::Display for Color {
