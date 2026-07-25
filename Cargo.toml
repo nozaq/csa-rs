@@ -13,7 +13,7 @@ edition = "2021"
 
 [dependencies]
 time = { version = "0.3", features = ["formatting", "std"] }
-nom = "7"
+nom = "8"
 
 [badges]
 travis-ci = { repository = "nozaq/csa-rs" }

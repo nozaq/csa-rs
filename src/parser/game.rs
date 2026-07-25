@@ -3,7 +3,7 @@ use nom::bytes::complete::{is_a, is_not, tag, take};
 use nom::character::complete::{anychar, digit1, one_of};
 use nom::combinator::{map, map_res, opt, value};
 use nom::multi::{count, many0, separated_list0};
-use nom::sequence::{delimited, pair, preceded, separated_pair, terminated, tuple};
+use nom::sequence::{delimited, pair, preceded, separated_pair, terminated};
 use nom::*;
 use std::str;
 use std::time::Duration;
@@ -12,26 +12,27 @@ use super::time::{datetime, timelimit};
 use crate::value::*;
 
 fn line_sep(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    is_a("\r\n,")(input)
+    is_a("\r\n,").parse(input)
 }
 
 fn not_line_sep(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    is_not("\r\n,")(input)
+    is_not("\r\n,").parse(input)
 }
 
 fn comment(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    preceded(tag("'"), not_line_sep)(input)
+    preceded(tag("'"), not_line_sep).parse(input)
 }
 
 fn comment_line(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    terminated(comment, line_sep)(input)
+    terminated(comment, line_sep).parse(input)
 }
 
 fn color(input: &[u8]) -> IResult<&[u8], Color> {
     map(one_of("+-"), |s| match s {
         '+' => Color::Black,
         _ => Color::White,
-    })(input)
+    })
+    .parse(input)
 }
 
 fn decimal(input: &[u8]) -> IResult<&[u8], Duration> {
@@ -39,109 +40,113 @@ fn decimal(input: &[u8]) -> IResult<&[u8], Duration> {
         str::from_utf8(s)
             .map(|s| s.parse::<u64>().unwrap())
             .map(Duration::from_secs)
-    })(input)
+    })
+    .parse(input)
 }
 
 fn fu(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Pawn, tag("FU"))(input)
+    value(PieceType::Pawn, tag("FU")).parse(input)
 }
 
 fn ky(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Lance, tag("KY"))(input)
+    value(PieceType::Lance, tag("KY")).parse(input)
 }
 
 fn ke(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Knight, tag("KE"))(input)
+    value(PieceType::Knight, tag("KE")).parse(input)
 }
 
 fn gi(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Silver, tag("GI"))(input)
+    value(PieceType::Silver, tag("GI")).parse(input)
 }
 
 fn ki(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Gold, tag("KI"))(input)
+    value(PieceType::Gold, tag("KI")).parse(input)
 }
 
 fn ka(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Bishop, tag("KA"))(input)
+    value(PieceType::Bishop, tag("KA")).parse(input)
 }
 
 fn hi(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Rook, tag("HI"))(input)
+    value(PieceType::Rook, tag("HI")).parse(input)
 }
 
 fn ou(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::King, tag("OU"))(input)
+    value(PieceType::King, tag("OU")).parse(input)
 }
 
 fn to(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::ProPawn, tag("TO"))(input)
+    value(PieceType::ProPawn, tag("TO")).parse(input)
 }
 
 fn ny(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::ProLance, tag("NY"))(input)
+    value(PieceType::ProLance, tag("NY")).parse(input)
 }
 
 fn nk(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::ProKnight, tag("NK"))(input)
+    value(PieceType::ProKnight, tag("NK")).parse(input)
 }
 
 fn ng(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::ProSilver, tag("NG"))(input)
+    value(PieceType::ProSilver, tag("NG")).parse(input)
 }
 
 fn um(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Horse, tag("UM"))(input)
+    value(PieceType::Horse, tag("UM")).parse(input)
 }
 
 fn ry(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::Dragon, tag("RY"))(input)
+    value(PieceType::Dragon, tag("RY")).parse(input)
 }
 
 fn al(input: &[u8]) -> IResult<&[u8], PieceType> {
-    value(PieceType::All, tag("AL"))(input)
+    value(PieceType::All, tag("AL")).parse(input)
 }
 
 fn piece_type(input: &[u8]) -> IResult<&[u8], PieceType> {
-    alt((fu, ky, ke, gi, ki, ka, hi, ou, to, ny, nk, ng, um, ry, al))(input)
+    alt((fu, ky, ke, gi, ki, ka, hi, ou, to, ny, nk, ng, um, ry, al)).parse(input)
 }
 
 fn one_digit(input: &[u8]) -> IResult<&[u8], u8> {
     map(one_of("0123456789"), |c: char| {
         c.to_digit(10).unwrap() as u8
-    })(input)
+    })
+    .parse(input)
 }
 
 fn square(input: &[u8]) -> IResult<&[u8], Square> {
-    map(tuple((one_digit, one_digit)), |(file, rank)| {
+    map((one_digit, one_digit), |(file, rank)| {
         Square::new(file, rank)
-    })(input)
+    })
+    .parse(input)
 }
 
 fn version(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    preceded(tag("V"), alt((tag("2.1"), tag("2.2"), tag("2"))))(input)
+    preceded(tag("V"), alt((tag("2.1"), tag("2.2"), tag("2")))).parse(input)
 }
 
 fn black_player(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    preceded(tag("N+"), not_line_sep)(input)
+    preceded(tag("N+"), not_line_sep).parse(input)
 }
 
 fn white_player(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    preceded(tag("N-"), not_line_sep)(input)
+    preceded(tag("N-"), not_line_sep).parse(input)
 }
 
 fn game_text_attr(input: &[u8]) -> IResult<&[u8], GameAttribute> {
     map(map_res(not_line_sep, str::from_utf8), |s: &str| {
         GameAttribute::Str(s.to_string())
-    })(input)
+    })
+    .parse(input)
 }
 
 fn game_time_attr(input: &[u8]) -> IResult<&[u8], GameAttribute> {
-    map(datetime, GameAttribute::Time)(input)
+    map(datetime, GameAttribute::Time).parse(input)
 }
 
 fn game_timelimit_attr(input: &[u8]) -> IResult<&[u8], GameAttribute> {
-    map(timelimit, GameAttribute::TimeLimit)(input)
+    map(timelimit, GameAttribute::TimeLimit).parse(input)
 }
 
 fn game_attr(input: &[u8]) -> IResult<&[u8], (String, GameAttribute)> {
@@ -152,20 +157,21 @@ fn game_attr(input: &[u8]) -> IResult<&[u8], (String, GameAttribute)> {
             tag(":"),
             alt((game_time_attr, game_timelimit_attr, game_text_attr)),
         ),
-    )(input)
+    )
+    .parse(input)
 }
 
 fn handicap(input: &[u8]) -> IResult<&[u8], Vec<(Square, PieceType)>> {
-    preceded(tag("PI"), many0(tuple((square, piece_type))))(input)
+    preceded(tag("PI"), many0((square, piece_type))).parse(input)
 }
 
 fn grid_piece(input: &[u8]) -> IResult<&[u8], Option<(Color, PieceType)>> {
     let (input, result) = anychar(input)?;
 
     match result {
-        '+' => map(piece_type, |pt| Some((Color::Black, pt)))(input),
-        '-' => map(piece_type, |pt| Some((Color::White, pt)))(input),
-        _ => value(None, take(2usize))(input),
+        '+' => map(piece_type, |pt| Some((Color::Black, pt))).parse(input),
+        '-' => map(piece_type, |pt| Some((Color::White, pt))).parse(input),
+        _ => value(None, take(2usize)).parse(input),
     }
 }
 
@@ -173,7 +179,7 @@ type GridRow = [Option<(Color, PieceType)>; 9];
 type Grid = [GridRow; 9];
 
 fn grid_row(input: &[u8]) -> IResult<&[u8], GridRow> {
-    let (input, vec) = count(grid_piece, 9)(input)?;
+    let (input, vec) = count(grid_piece, 9).parse(input)?;
 
     // TODO: Convert into an array instead of copying.
     let mut array = [None; 9];
@@ -183,23 +189,23 @@ fn grid_row(input: &[u8]) -> IResult<&[u8], GridRow> {
 }
 
 fn grid(input: &[u8]) -> IResult<&[u8], Grid> {
-    let (input, r1) = delimited(tag("P1"), grid_row, line_sep)(input)?;
-    let (input, r2) = delimited(tag("P2"), grid_row, line_sep)(input)?;
-    let (input, r3) = delimited(tag("P3"), grid_row, line_sep)(input)?;
-    let (input, r4) = delimited(tag("P4"), grid_row, line_sep)(input)?;
-    let (input, r5) = delimited(tag("P5"), grid_row, line_sep)(input)?;
-    let (input, r6) = delimited(tag("P6"), grid_row, line_sep)(input)?;
-    let (input, r7) = delimited(tag("P7"), grid_row, line_sep)(input)?;
-    let (input, r8) = delimited(tag("P8"), grid_row, line_sep)(input)?;
-    let (input, r9) = preceded(tag("P9"), grid_row)(input)?;
+    let (input, r1) = delimited(tag("P1"), grid_row, line_sep).parse(input)?;
+    let (input, r2) = delimited(tag("P2"), grid_row, line_sep).parse(input)?;
+    let (input, r3) = delimited(tag("P3"), grid_row, line_sep).parse(input)?;
+    let (input, r4) = delimited(tag("P4"), grid_row, line_sep).parse(input)?;
+    let (input, r5) = delimited(tag("P5"), grid_row, line_sep).parse(input)?;
+    let (input, r6) = delimited(tag("P6"), grid_row, line_sep).parse(input)?;
+    let (input, r7) = delimited(tag("P7"), grid_row, line_sep).parse(input)?;
+    let (input, r8) = delimited(tag("P8"), grid_row, line_sep).parse(input)?;
+    let (input, r9) = preceded(tag("P9"), grid_row).parse(input)?;
 
     Ok((input, [r1, r2, r3, r4, r5, r6, r7, r8, r9]))
 }
 
 fn piece_placement(input: &[u8]) -> IResult<&[u8], Vec<(Color, Square, PieceType)>> {
-    let (input, _) = tag("P")(input)?;
+    let (input, _) = tag("P").parse(input)?;
     let (input, c) = color(input)?;
-    let (input, pcs) = many0(tuple((square, piece_type)))(input)?;
+    let (input, pcs) = many0((square, piece_type)).parse(input)?;
 
     Ok((
         input,
@@ -231,12 +237,13 @@ fn special_move(input: &[u8]) -> IResult<&[u8], Action> {
             value(Action::Hikiwake, tag("HIKIWAKE")),
             value(Action::Sennichite, tag("SENNICHITE")),
         )),
-    )(input)
+    )
+    .parse(input)
 }
 
 fn move_record(input: &[u8]) -> IResult<&[u8], MoveRecord> {
-    let (input, action) = alt((normal_move, special_move))(input)?;
-    let (input, time) = opt(preceded(line_sep, preceded(tag("T"), decimal)))(input)?;
+    let (input, action) = alt((normal_move, special_move)).parse(input)?;
+    let (input, time) = opt(preceded(line_sep, preceded(tag("T"), decimal))).parse(input)?;
 
     Ok((input, MoveRecord { action, time }))
 }
@@ -245,39 +252,43 @@ fn move_records(input: &[u8]) -> IResult<&[u8], Vec<MoveRecord>> {
     let (input, moves) = many0(map(
         pair(terminated(move_record, line_sep), many0(comment_line)),
         |(m, _)| m,
-    ))(input)?;
+    ))
+    .parse(input)?;
 
     Ok((input, moves))
 }
 
 pub fn game_record(input: &[u8]) -> IResult<&[u8], GameRecord> {
-    let (input, _) = many0(comment_line)(input)?;
-    let (input, _) = opt(terminated(version, line_sep))(input)?;
-    let (input, _) = many0(comment_line)(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
+    let (input, _) = opt(terminated(version, line_sep)).parse(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
     let (input, black_player) = opt(map_res(terminated(black_player, line_sep), |b| {
         str::from_utf8(b)
-    }))(input)?;
-    let (input, _) = many0(comment_line)(input)?;
+    }))
+    .parse(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
     let (input, white_player) = opt(map_res(terminated(white_player, line_sep), |b| {
         str::from_utf8(b)
-    }))(input)?;
-    let (input, _) = many0(comment_line)(input)?;
+    }))
+    .parse(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
     let (input, attrs) = map(
         opt(terminated(
             separated_list0(line_sep, preceded(many0(comment_line), game_attr)),
             line_sep,
         )),
         |v: Option<Vec<(String, GameAttribute)>>| v.unwrap_or_default(),
-    )(input)?;
-    let (input, _) = many0(comment_line)(input)?;
-    let (input, drop_pieces) = opt(terminated(handicap, line_sep))(input)?;
-    let (input, _) = many0(comment_line)(input)?;
-    let (input, bulk) = opt(terminated(grid, line_sep))(input)?;
-    let (input, _) = many0(comment_line)(input)?;
-    let (input, add_pieces) = many0(terminated(piece_placement, line_sep))(input)?;
-    let (input, _) = many0(comment_line)(input)?;
-    let (input, side_to_move) = terminated(color, line_sep)(input)?;
-    let (input, _) = many0(comment_line)(input)?;
+    )
+    .parse(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
+    let (input, drop_pieces) = opt(terminated(handicap, line_sep)).parse(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
+    let (input, bulk) = opt(terminated(grid, line_sep)).parse(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
+    let (input, add_pieces) = many0(terminated(piece_placement, line_sep)).parse(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
+    let (input, side_to_move) = terminated(color, line_sep).parse(input)?;
+    let (input, _) = many0(comment_line).parse(input)?;
     let (input, moves) = move_records(input)?;
 
     Ok((
