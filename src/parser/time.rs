@@ -11,15 +11,15 @@ use time::{Date as NativeDate, Month, Time as NativeTime};
 use crate::value::{Time, TimeLimit};
 
 fn take_2_digits(input: &[u8]) -> IResult<&[u8], i32> {
-    map_res(map_res(take(2usize), str::from_utf8), |s: &str| s.parse())(input)
+    map_res(map_res(take(2usize), str::from_utf8), |s: &str| s.parse()).parse(input)
 }
 
 fn take_4_digits(input: &[u8]) -> IResult<&[u8], i32> {
-    map_res(map_res(take(4usize), str::from_utf8), |s: &str| s.parse())(input)
+    map_res(map_res(take(4usize), str::from_utf8), |s: &str| s.parse()).parse(input)
 }
 
 fn take_n_digits(input: &[u8]) -> IResult<&[u8], i32> {
-    map_res(map_res(digit1, str::from_utf8), |s: &str| s.parse())(input)
+    map_res(map_res(digit1, str::from_utf8), |s: &str| s.parse()).parse(input)
 }
 
 fn year(input: &[u8]) -> IResult<&[u8], i32> {
@@ -27,30 +27,30 @@ fn year(input: &[u8]) -> IResult<&[u8], i32> {
 }
 
 fn month(input: &[u8]) -> IResult<&[u8], i32> {
-    verify(take_2_digits, |&d| d > 0 && d < 13)(input)
+    verify(take_2_digits, |&d| d > 0 && d < 13).parse(input)
 }
 
 fn day(input: &[u8]) -> IResult<&[u8], i32> {
-    verify(take_2_digits, |&d| d > 0 && d < 32)(input)
+    verify(take_2_digits, |&d| d > 0 && d < 32).parse(input)
 }
 
 fn hour(input: &[u8]) -> IResult<&[u8], i32> {
-    verify(take_2_digits, |&d| (0..24).contains(&d))(input)
+    verify(take_2_digits, |&d| (0..24).contains(&d)).parse(input)
 }
 
 fn minutes(input: &[u8]) -> IResult<&[u8], i32> {
-    verify(take_2_digits, |&d| (0..60).contains(&d))(input)
+    verify(take_2_digits, |&d| (0..60).contains(&d)).parse(input)
 }
 
 fn seconds(input: &[u8]) -> IResult<&[u8], i32> {
-    verify(take_2_digits, |&d| (0..60).contains(&d))(input)
+    verify(take_2_digits, |&d| (0..60).contains(&d)).parse(input)
 }
 
 fn date(input: &[u8]) -> IResult<&[u8], NativeDate> {
     let (input, year) = year(input)?;
-    let (input, _) = tag("/")(input)?;
+    let (input, _) = tag("/").parse(input)?;
     let (input, month) = month(input)?;
-    let (input, _) = tag("/")(input)?;
+    let (input, _) = tag("/").parse(input)?;
     let (input, day) = day(input)?;
 
     let month = Month::try_from(month as u8).unwrap();
@@ -61,9 +61,9 @@ fn date(input: &[u8]) -> IResult<&[u8], NativeDate> {
 
 fn time(input: &[u8]) -> IResult<&[u8], NativeTime> {
     let (input, hour) = hour(input)?;
-    let (input, _) = tag(":")(input)?;
+    let (input, _) = tag(":").parse(input)?;
     let (input, minutes) = minutes(input)?;
-    let (input, _) = tag(":")(input)?;
+    let (input, _) = tag(":").parse(input)?;
     let (input, seconds) = seconds(input)?;
 
     Ok((
@@ -74,16 +74,16 @@ fn time(input: &[u8]) -> IResult<&[u8], NativeTime> {
 
 pub fn datetime(input: &[u8]) -> IResult<&[u8], Time> {
     let (input, date) = date(input)?;
-    let (input, time) = opt(preceded(tag(" "), time))(input)?;
+    let (input, time) = opt(preceded(tag(" "), time)).parse(input)?;
 
     Ok((input, Time { date, time }))
 }
 
 pub fn timelimit(input: &[u8]) -> IResult<&[u8], TimeLimit> {
     let (input, hour) = take_n_digits(input)?;
-    let (input, _) = tag(":")(input)?;
+    let (input, _) = tag(":").parse(input)?;
     let (input, minutes) = minutes(input)?;
-    let (input, _) = tag("+")(input)?;
+    let (input, _) = tag("+").parse(input)?;
     let (input, byoyomi) = take_n_digits(input)?;
 
     Ok((
